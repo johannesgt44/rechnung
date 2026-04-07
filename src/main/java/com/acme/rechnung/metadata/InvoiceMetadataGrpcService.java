@@ -40,6 +40,8 @@ final class InvoiceMetadataGrpcService extends InvoiceMetadataServiceGrpc.Invoic
                 .setStatus("SAVED")
                 .build();
 
+        System.out.printf("InvoiceMetadata saved " + metadata );
+
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
