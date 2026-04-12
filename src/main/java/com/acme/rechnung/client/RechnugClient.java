@@ -4,7 +4,7 @@ import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import com.acme.rechnung.invoice.v1.RechnungMetadataServiceGrpc;
 import com.acme.rechnung.invoice.v1.SaveRechnungMetadataRequest;
 import com.acme.rechnung.invoice.v1.SaveRechnungMetadataResponse;
-import com.acme.rechnung.payment.PaymentOrder;
+import com.acme.rechnung.payment.Zahlungsauftrag;
 import com.acme.rechnung.payment.PaymentOrderPublisher;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -28,9 +28,9 @@ public final class RechnugClient {
         try {
             while (true) {
                 Rechnungsdaten gespeicherteMetadaten = saveRechnungMetadata(channel);
-                veroeffentlicheZahlungsauftrag(gespeicherteMetadaten);
+                publishZahlungsauftrag(gespeicherteMetadaten);
                 System.out.printf(
-                        "RechnugClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
+                        "RechnungClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
                         gespeicherteMetadaten.getRechnungsId(),
                         gespeicherteMetadaten.getLieferantenName(),
                         gespeicherteMetadaten.getGesamtbetragBrutto(),
@@ -64,10 +64,10 @@ public final class RechnugClient {
         return response.getMetadata();
     }
 
-    private static void veroeffentlicheZahlungsauftrag(Rechnungsdaten gespeicherteMetadaten) throws Exception {
-        PaymentOrder paymentOrder = PaymentOrder.forInvoice(gespeicherteMetadaten);
+    private static void publishZahlungsauftrag(Rechnungsdaten gespeicherteMetadaten) throws Exception {
+        Zahlungsauftrag zahlungsauftrag = Zahlungsauftrag.toZahlungsauftrag(gespeicherteMetadaten);
         try (PaymentOrderPublisher publisher = new PaymentOrderPublisher()) {
-            publisher.publish(paymentOrder);
+            publisher.publish(zahlungsauftrag);
         }
     }
 

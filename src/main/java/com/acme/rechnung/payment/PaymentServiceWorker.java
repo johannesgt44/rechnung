@@ -29,7 +29,7 @@ public final class PaymentServiceWorker {
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             try {
-                PaymentOrder order = objectMapper.readValue(delivery.getBody(), PaymentOrder.class);
+                Zahlungsauftrag order = objectMapper.readValue(delivery.getBody(), Zahlungsauftrag.class);
                 System.out.printf(
                         "Payment processed: paymentId=%s invoiceId=%s amount=%s %s%n",
                         order.paymentId(),

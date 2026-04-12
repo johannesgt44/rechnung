@@ -28,10 +28,10 @@ public final class PaymentOrderPublisher implements AutoCloseable {
         this.channel.queueDeclare(queueName, true, false, false, null);
     }
 
-    // PaymentOrder in die Queue schreiben
+    // Zahlungsauftrag in die Queue schreiben
     // TODO was macht AQMP
-    public void publish(PaymentOrder paymentOrder) throws IOException {
-        byte[] body = objectMapper.writeValueAsString(paymentOrder).getBytes(StandardCharsets.UTF_8);
+    public void publish(Zahlungsauftrag zahlungsauftrag) throws IOException {
+        byte[] body = objectMapper.writeValueAsString(zahlungsauftrag).getBytes(StandardCharsets.UTF_8);
         AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
                 .contentType("application/json")
                 .deliveryMode(2)
