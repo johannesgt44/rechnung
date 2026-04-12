@@ -49,21 +49,21 @@ protobuf {
 }
 
 application {
-    mainClass = "com.acme.rechnung.metadata.InvoiceMetadataServer"
+    mainClass = "com.acme.rechnung.metadata.RechnungMetadataServer"
 }
 
 tasks.register<JavaExec>("runPaymentService") {
     group = "application"
-    description = "Starts the RabbitMQ payment service worker."
+    description = "Startet den RabbitMQ-Zahlungsdienst."
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.acme.rechnung.payment.PaymentServiceWorker"
+    mainClass = "com.acme.rechnung.zahlung.ZahlungsServiceWorker"
 }
 
 tasks.register<JavaExec>("runInvoiceClient") {
     group = "application"
-    description = "Runs a sample invoice client that stores metadata and publishes a payment order."
+    description = "Startet einen Beispiel-Client, der Rechnungsmetadaten speichert und einen Zahlungsauftrag versendet."
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.acme.rechnung.client.RechnugClient"
+    mainClass = "com.acme.rechnung.client.RechnungClient"
 }
 
 tasks.test {

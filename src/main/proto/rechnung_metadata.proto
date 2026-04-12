@@ -9,7 +9,9 @@ option java_outer_classname = "RechnungMetadataProto";
 // Vertrag für den Austausch von Rechnungsmetadaten per gRPC.
 
 service RechnungMetadataService {
-  rpc SaveRechnungMetadata(SaveRechnungMetadataRequest) returns (SaveRechnungMetadataResponse);
+  rpc CreateRechnungMetadata(CreateRechnungMetadataRequest) returns (CreateRechnungMetadataResponse);
+  rpc GetRechnungMetadata(GetRechnungMetadataRequest) returns (GetRechnungMetadataResponse);
+  rpc UpdateRechnungMetadata(UpdateRechnungMetadataRequest) returns (UpdateRechnungMetadataResponse);
 }
 
 message Rechnungsdaten {
@@ -21,11 +23,28 @@ message Rechnungsdaten {
   string waehrung = 6;
 }
 
-message SaveRechnungMetadataRequest {
+message CreateRechnungMetadataRequest {
   Rechnungsdaten metadata = 1;
 }
 
-message SaveRechnungMetadataResponse {
+message CreateRechnungMetadataResponse {
+  Rechnungsdaten metadata = 1;
+  string status = 2;
+}
+
+message GetRechnungMetadataRequest {
+  string rechnungs_id = 1;
+}
+
+message GetRechnungMetadataResponse {
+  Rechnungsdaten metadata = 1;
+}
+
+message UpdateRechnungMetadataRequest {
+  Rechnungsdaten metadata = 1;
+}
+
+message UpdateRechnungMetadataResponse {
   Rechnungsdaten metadata = 1;
   string status = 2;
 }
