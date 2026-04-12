@@ -1,9 +1,9 @@
 package com.acme.rechnung.client;
 
-import com.acme.rechnung.invoice.v1.InvoiceMetadata;
-import com.acme.rechnung.invoice.v1.InvoiceMetadataServiceGrpc;
-import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataRequest;
-import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataResponse;
+import com.acme.rechnung.invoice.v1.Rechnungsdaten;
+import com.acme.rechnung.invoice.v1.RechnungMetadataServiceGrpc;
+import com.acme.rechnung.invoice.v1.SaveRechnungMetadataRequest;
+import com.acme.rechnung.invoice.v1.SaveRechnungMetadataResponse;
 import com.acme.rechnung.payment.PaymentOrder;
 import com.acme.rechnung.payment.PaymentOrderPublisher;
 import io.grpc.ManagedChannel;
@@ -23,41 +23,41 @@ public final class InvoiceClient {
                 .build();
 
         try {
-            InvoiceMetadata storedMetadata = saveInvoiceMetadata(channel);
-            publishPaymentOrder(storedMetadata);
+            Rechnungsdaten gespeicherteMetadaten = saveRechnungMetadata(channel);
+            publishPaymentOrder(gespeicherteMetadaten);
             System.out.printf(
                     "InvoiceClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
-                    storedMetadata.getInvoiceId(),
-                    storedMetadata.getSupplierName(),
-                    storedMetadata.getGrossAmount(),
-                    storedMetadata.getCurrency()
+                    gespeicherteMetadaten.getRechnungsId(),
+                    gespeicherteMetadaten.getLieferantenName(),
+                    gespeicherteMetadaten.getGesamtbetragBrutto(),
+                    gespeicherteMetadaten.getWaehrung()
             );
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
-    private static InvoiceMetadata saveInvoiceMetadata(ManagedChannel channel) {
-        InvoiceMetadata metadata = InvoiceMetadata.newBuilder()
-                .setSupplierName("Muster Lieferant GmbH")
-                .setInvoiceNumber("RE-2026-0001")
-                .setInvoiceDate("2026-04-07")
-                .setGrossAmount("1190.00")
-                .setCurrency("EUR")
+    private static Rechnungsdaten saveRechnungMetadata(ManagedChannel channel) {
+        Rechnungsdaten metadata = Rechnungsdaten.newBuilder()
+                .setLieferantenName("Muster Lieferant GmbH")
+                .setRechnungsNummer("RE-2026-0001")
+                .setRechnungsDatum("2026-04-07")
+                .setGesamtbetragBrutto("1190.00")
+                .setWaehrung("EUR")
                 .build();
 
-        SaveInvoiceMetadataRequest request = SaveInvoiceMetadataRequest.newBuilder()
+        SaveRechnungMetadataRequest request = SaveRechnungMetadataRequest.newBuilder()
                 .setMetadata(metadata)
                 .build();
 
-        InvoiceMetadataServiceGrpc.InvoiceMetadataServiceBlockingStub stub =
-                InvoiceMetadataServiceGrpc.newBlockingStub(channel);
-        SaveInvoiceMetadataResponse response = stub.saveInvoiceMetadata(request);
+        RechnungMetadataServiceGrpc.RechnungMetadataServiceBlockingStub stub =
+                RechnungMetadataServiceGrpc.newBlockingStub(channel);
+        SaveRechnungMetadataResponse response = stub.saveRechnungMetadata(request);
         return response.getMetadata();
     }
 
-    private static void publishPaymentOrder(InvoiceMetadata storedMetadata) throws Exception {
-        PaymentOrder paymentOrder = PaymentOrder.forInvoice(storedMetadata);
+    private static void publishPaymentOrder(Rechnungsdaten gespeicherteMetadaten) throws Exception {
+        PaymentOrder paymentOrder = PaymentOrder.forInvoice(gespeicherteMetadaten);
         try (PaymentOrderPublisher publisher = new PaymentOrderPublisher()) {
             publisher.publish(paymentOrder);
         }

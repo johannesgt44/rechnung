@@ -1,6 +1,6 @@
 package com.acme.rechnung.payment;
 
-import com.acme.rechnung.invoice.v1.InvoiceMetadata;
+import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import java.util.UUID;
 
 public record PaymentOrder(
@@ -11,14 +11,14 @@ public record PaymentOrder(
         String amount,
         String currency
 ) {
-    public static PaymentOrder forInvoice(InvoiceMetadata metadata) {
+    public static PaymentOrder forInvoice(Rechnungsdaten metadata) {
         return new PaymentOrder(
                 UUID.randomUUID().toString(),
-                metadata.getInvoiceId(),
-                metadata.getSupplierName(),
-                metadata.getInvoiceNumber(),
-                metadata.getGrossAmount(),
-                metadata.getCurrency()
+                metadata.getRechnungsId(),
+                metadata.getLieferantenName(),
+                metadata.getRechnungsNummer(),
+                metadata.getGesamtbetragBrutto(),
+                metadata.getWaehrung()
         );
     }
 }
