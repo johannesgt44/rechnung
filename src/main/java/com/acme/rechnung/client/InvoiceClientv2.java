@@ -4,14 +4,14 @@ import com.acme.rechnung.invoice.v1.InvoiceMetadata;
 import com.acme.rechnung.invoice.v1.InvoiceMetadataServiceGrpc;
 import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataRequest;
 import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataResponse;
-import com.acme.rechnung.payment.PaymentOrder;
-import com.acme.rechnung.payment.PaymentOrderPublisher;
+import com.acme.rechnung.payment.PaymentOrderv2;
+import com.acme.rechnung.payment.PaymentOrderPublisherv2;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.concurrent.TimeUnit;
 
-public final class InvoiceClient {
-    private InvoiceClient() {
+public final class InvoiceClientv2 {
+    private InvoiceClientv2() {
     }
 
     static void main() throws Exception {
@@ -66,8 +66,8 @@ public final class InvoiceClient {
 
     //
     private static void publishPaymentOrder(InvoiceMetadata storedMetadata) throws Exception {
-        PaymentOrder paymentOrder = PaymentOrder.forInvoice(storedMetadata);
-        try (PaymentOrderPublisher publisher = new PaymentOrderPublisher()) {
+        PaymentOrderv2 paymentOrder = PaymentOrderv2.forInvoice(storedMetadata);
+        try (PaymentOrderPublisherv2 publisher = new PaymentOrderPublisherv2()) {
             publisher.publish(paymentOrder);
         }
     }
