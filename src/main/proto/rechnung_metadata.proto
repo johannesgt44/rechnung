@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package rechnung.invoice.v1;
+
+option java_multiple_files = true;
+option java_package = "com.acme.rechnung.invoice.v1";
+option java_outer_classname = "RechnungMetadataProto";
+
+// Vertrag für den Austausch von Rechnungsmetadaten per gRPC.
+
+service RechnungMetadataService {
+  rpc SaveRechnungMetadata(SaveRechnungMetadataRequest) returns (SaveRechnungMetadataResponse);
+}
+
+message Rechnungsdaten {
+  string rechnungs_id = 1;
+  string lieferanten_name = 2;
+  string rechnungs_nummer = 3;
+  string rechnungs_datum = 4;
+  string gesamtbetrag_brutto = 5;
+  string waehrung = 6;
+}
+
+message SaveRechnungMetadataRequest {
+  Rechnungsdaten metadata = 1;
+}
+
+message SaveRechnungMetadataResponse {
+  Rechnungsdaten metadata = 1;
+  string status = 2;
+}
