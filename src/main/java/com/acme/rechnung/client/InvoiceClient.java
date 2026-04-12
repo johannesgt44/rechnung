@@ -14,7 +14,8 @@ public final class InvoiceClient {
     private InvoiceClient() {
     }
 
-    public static void main(String[] args) throws Exception {
+    static void main() throws Exception {
+        // Verbindug zu grpc Service
         String grpcHost = environmentValue("INVOICE_METADATA_HOST", "localhost");
         int grpcPort = Integer.parseInt(environmentValue("INVOICE_METADATA_PORT", "50051"));
 
@@ -22,22 +23,29 @@ public final class InvoiceClient {
                 .usePlaintext()
                 .build();
 
+        // Ausführen der Anfrage
+        // TODO Loop erstellen für mehr Anfragen + mehr Mock-Daten für die Anfragen
         try {
-            InvoiceMetadata storedMetadata = saveInvoiceMetadata(channel);
-            publishPaymentOrder(storedMetadata);
-            System.out.printf(
-                    "InvoiceClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
-                    storedMetadata.getInvoiceId(),
-                    storedMetadata.getSupplierName(),
-                    storedMetadata.getGrossAmount(),
-                    storedMetadata.getCurrency()
-            );
+            while (true) {
+                InvoiceMetadata storedMetadata = saveInvoiceMetadata(channel);
+                publishPaymentOrder(storedMetadata);
+                System.out.printf(
+                        "InvoiceClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
+                        storedMetadata.getInvoiceId(),
+                        storedMetadata.getSupplierName(),
+                        storedMetadata.getGrossAmount(),
+                        storedMetadata.getCurrency()
+                );
+                Thread.sleep(500);
+            }
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
+    // Rechnung Metadaten erstellen
     private static InvoiceMetadata saveInvoiceMetadata(ManagedChannel channel) {
+        // Daten eingeben
         InvoiceMetadata metadata = InvoiceMetadata.newBuilder()
                 .setSupplierName("Muster Lieferant GmbH")
                 .setInvoiceNumber("RE-2026-0001")
@@ -56,6 +64,7 @@ public final class InvoiceClient {
         return response.getMetadata();
     }
 
+    //
     private static void publishPaymentOrder(InvoiceMetadata storedMetadata) throws Exception {
         PaymentOrder paymentOrder = PaymentOrder.forInvoice(storedMetadata);
         try (PaymentOrderPublisher publisher = new PaymentOrderPublisher()) {
@@ -63,6 +72,7 @@ public final class InvoiceClient {
         }
     }
 
+    //
     private static String environmentValue(String name, String defaultValue) {
         String value = System.getenv(name);
         return value == null || value.isBlank() ? defaultValue : value;

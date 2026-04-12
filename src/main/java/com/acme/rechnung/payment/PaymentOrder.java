@@ -3,6 +3,8 @@ package com.acme.rechnung.payment;
 import com.acme.rechnung.invoice.v1.InvoiceMetadata;
 import java.util.UUID;
 
+// Objekt um eine Payment Order zu speichern
+// TODO evt Typen anpassen
 public record PaymentOrder(
         String paymentId,
         String invoiceId,
