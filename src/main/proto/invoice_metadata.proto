@@ -10,20 +10,20 @@ service InvoiceMetadataService {
   rpc SaveInvoiceMetadata(SaveInvoiceMetadataRequest) returns (SaveInvoiceMetadataResponse);
 }
 
-message InvoiceMetadata {
-  string invoice_id = 1;
-  string supplier_name = 2;
-  string invoice_number = 3;
-  string invoice_date = 4;
-  string gross_amount = 5;
-  string currency = 6;
+message Rechnungsdaten {
+  string rechnungs_id = 1;
+  string lieferanten_name = 2;
+  string rechnungs_nummer = 3;
+  string rechnungs_datum = 4;
+  string gesamtbetrag_brutto = 5;
+  string waehrung = 6;
 }
 
 message SaveInvoiceMetadataRequest {
-  InvoiceMetadata metadata = 1;
+  Rechnungsdaten metadata = 1;
 }
 
 message SaveInvoiceMetadataResponse {
-  InvoiceMetadata metadata = 1;
+  Rechnungsdaten metadata = 1;
   string status = 2;
 }

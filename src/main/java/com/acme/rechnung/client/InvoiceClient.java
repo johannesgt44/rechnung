@@ -1,7 +1,7 @@
 package com.acme.rechnung.client;
 
-import com.acme.rechnung.invoice.v1.InvoiceMetadata;
 import com.acme.rechnung.invoice.v1.InvoiceMetadataServiceGrpc;
+import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataRequest;
 import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataResponse;
 import com.acme.rechnung.payment.PaymentOrder;
@@ -23,27 +23,27 @@ public final class InvoiceClient {
                 .build();
 
         try {
-            InvoiceMetadata storedMetadata = saveInvoiceMetadata(channel);
-            publishPaymentOrder(storedMetadata);
+            Rechnungsdaten gespeicherteMetadaten = saveInvoiceMetadata(channel);
+            publishPaymentOrder(gespeicherteMetadaten);
             System.out.printf(
                     "InvoiceClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
-                    storedMetadata.getInvoiceId(),
-                    storedMetadata.getSupplierName(),
-                    storedMetadata.getGrossAmount(),
-                    storedMetadata.getCurrency()
+                    gespeicherteMetadaten.getRechnungsId(),
+                    gespeicherteMetadaten.getLieferantenName(),
+                    gespeicherteMetadaten.getGesamtbetragBrutto(),
+                    gespeicherteMetadaten.getWaehrung()
             );
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
-    private static InvoiceMetadata saveInvoiceMetadata(ManagedChannel channel) {
-        InvoiceMetadata metadata = InvoiceMetadata.newBuilder()
-                .setSupplierName("Muster Lieferant GmbH")
-                .setInvoiceNumber("RE-2026-0001")
-                .setInvoiceDate("2026-04-07")
-                .setGrossAmount("1190.00")
-                .setCurrency("EUR")
+    private static Rechnungsdaten saveInvoiceMetadata(ManagedChannel channel) {
+        Rechnungsdaten metadata = Rechnungsdaten.newBuilder()
+                .setLieferantenName("Muster Lieferant GmbH")
+                .setRechnungsNummer("RE-2026-0001")
+                .setRechnungsDatum("2026-04-07")
+                .setGesamtbetragBrutto("1190.00")
+                .setWaehrung("EUR")
                 .build();
 
         SaveInvoiceMetadataRequest request = SaveInvoiceMetadataRequest.newBuilder()
@@ -56,8 +56,8 @@ public final class InvoiceClient {
         return response.getMetadata();
     }
 
-    private static void publishPaymentOrder(InvoiceMetadata storedMetadata) throws Exception {
-        PaymentOrder paymentOrder = PaymentOrder.forInvoice(storedMetadata);
+    private static void publishPaymentOrder(Rechnungsdaten gespeicherteMetadaten) throws Exception {
+        PaymentOrder paymentOrder = PaymentOrder.forInvoice(gespeicherteMetadaten);
         try (PaymentOrderPublisher publisher = new PaymentOrderPublisher()) {
             publisher.publish(paymentOrder);
         }

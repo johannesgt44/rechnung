@@ -11,7 +11,7 @@ public final class InvoiceMetadataServer {
 
     private InvoiceMetadataServer(int port) {
         this.server = ServerBuilder.forPort(port)
-                .addService(new InvoiceMetadataGrpcService(new InMemoryInvoiceMetadataRepository()))
+                .addService(new InvoiceMetadataGrpcService(new InMemoryRechnungMetadataRepository()))
                 .build();
     }
 

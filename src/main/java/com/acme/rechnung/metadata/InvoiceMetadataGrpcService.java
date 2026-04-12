@@ -1,16 +1,16 @@
 package com.acme.rechnung.metadata;
 
-import com.acme.rechnung.invoice.v1.InvoiceMetadata;
 import com.acme.rechnung.invoice.v1.InvoiceMetadataServiceGrpc;
+import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataRequest;
 import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataResponse;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
 final class InvoiceMetadataGrpcService extends InvoiceMetadataServiceGrpc.InvoiceMetadataServiceImplBase {
-    private final InvoiceMetadataRepository repository;
+    private final RechnungMetadataRepository repository;
 
-    InvoiceMetadataGrpcService(InvoiceMetadataRepository repository) {
+    InvoiceMetadataGrpcService(RechnungMetadataRepository repository) {
         this.repository = repository;
     }
 
@@ -26,21 +26,21 @@ final class InvoiceMetadataGrpcService extends InvoiceMetadataServiceGrpc.Invoic
             return;
         }
 
-        InvoiceMetadata metadata = request.getMetadata();
-        if (metadata.getSupplierName().isBlank() || metadata.getInvoiceNumber().isBlank()) {
+        Rechnungsdaten metadata = request.getMetadata();
+        if (metadata.getLieferantenName().isBlank() || metadata.getRechnungsNummer().isBlank()) {
             responseObserver.onError(Status.INVALID_ARGUMENT
-                    .withDescription("supplier_name and invoice_number are required")
+                    .withDescription("lieferanten_name und rechnungs_nummer sind erforderlich")
                     .asRuntimeException());
             return;
         }
 
-        InvoiceMetadata storedMetadata = repository.save(metadata);
+        Rechnungsdaten gespeicherteMetadaten = repository.save(metadata);
         SaveInvoiceMetadataResponse response = SaveInvoiceMetadataResponse.newBuilder()
-                .setMetadata(storedMetadata)
+                .setMetadata(gespeicherteMetadaten)
                 .setStatus("SAVED")
                 .build();
 
-        System.out.printf("InvoiceMetadata saved " + metadata );
+        System.out.printf("InvoiceMetadata saved " + metadata);
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
