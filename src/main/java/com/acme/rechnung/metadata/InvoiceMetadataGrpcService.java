@@ -1,13 +1,13 @@
 package com.acme.rechnung.metadata;
 
-import com.acme.rechnung.invoice.v1.InvoiceMetadataServiceGrpc;
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;
-import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataRequest;
-import com.acme.rechnung.invoice.v1.SaveInvoiceMetadataResponse;
+import com.acme.rechnung.invoice.v1.RechnungMetadataServiceGrpc;
+import com.acme.rechnung.invoice.v1.SaveRechnungMetadataRequest;
+import com.acme.rechnung.invoice.v1.SaveRechnungMetadataResponse;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
-final class InvoiceMetadataGrpcService extends InvoiceMetadataServiceGrpc.InvoiceMetadataServiceImplBase {
+final class InvoiceMetadataGrpcService extends RechnungMetadataServiceGrpc.RechnungMetadataServiceImplBase {
     private final RechnungMetadataRepository repository;
 
     InvoiceMetadataGrpcService(RechnungMetadataRepository repository) {
@@ -15,9 +15,9 @@ final class InvoiceMetadataGrpcService extends InvoiceMetadataServiceGrpc.Invoic
     }
 
     @Override
-    public void saveInvoiceMetadata(
-            SaveInvoiceMetadataRequest request,
-            StreamObserver<SaveInvoiceMetadataResponse> responseObserver
+    public void saveRechnungMetadata(
+            SaveRechnungMetadataRequest request,
+            StreamObserver<SaveRechnungMetadataResponse> responseObserver
     ) {
         if (!request.hasMetadata()) {
             responseObserver.onError(Status.INVALID_ARGUMENT
@@ -35,7 +35,7 @@ final class InvoiceMetadataGrpcService extends InvoiceMetadataServiceGrpc.Invoic
         }
 
         Rechnungsdaten gespeicherteMetadaten = repository.save(metadata);
-        SaveInvoiceMetadataResponse response = SaveInvoiceMetadataResponse.newBuilder()
+        SaveRechnungMetadataResponse response = SaveRechnungMetadataResponse.newBuilder()
                 .setMetadata(gespeicherteMetadaten)
                 .setStatus("SAVED")
                 .build();
