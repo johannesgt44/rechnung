@@ -63,7 +63,7 @@ tasks.register<JavaExec>("runInvoiceClient") {
     group = "application"
     description = "Runs a sample invoice client that stores metadata and publishes a payment order."
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.acme.rechnung.client.InvoiceClient"
+    mainClass = "com.acme.rechnung.client.RechnugClient"
 }
 
 tasks.test {
