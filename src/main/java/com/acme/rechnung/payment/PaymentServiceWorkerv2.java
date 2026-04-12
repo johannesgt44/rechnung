@@ -78,9 +78,9 @@ public class PaymentServiceWorkerv2 {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             try{
                 /* Nimmt die Anfrage, speichert diese, und liest den Body der Nachricht aus. */
-                PaymentOrder order = objectMapper.readValue(delivery.getBody(), PaymentOrder.class);
-                System.out.println("Zahlung verarbeitet: paymentId="+order.paymentId()+" invoiceId="+order.invoiceId()
-                        +" amount="+order.amount()+" "+order.currency());
+                PaymentOrder auftrag = objectMapper.readValue(delivery.getBody(), PaymentOrder.class);
+                System.out.println("Zahlung verarbeitet: paymentId="+auftrag.paymentId()+" invoiceId="+auftrag.invoiceId()
+                        +" amount="+auftrag.amount()+" "+auftrag.currency());
                 /* Worker bestätigt RabbitMQ, dass die Nachricht erfolgreich verarbeitet wurde.*/
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             }
