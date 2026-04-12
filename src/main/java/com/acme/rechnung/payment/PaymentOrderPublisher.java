@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public final class PaymentOrderPublisherv2 implements AutoCloseable {
+public final class PaymentOrderPublisher implements AutoCloseable {
     //XML Mapper
     private final ObjectMapper objectMapper = new ObjectMapper();
     // Connection und Channel für RabbitMQ
@@ -16,7 +16,7 @@ public final class PaymentOrderPublisherv2 implements AutoCloseable {
     private final Channel channel;
     private final String queueName;
 
-    public PaymentOrderPublisherv2() throws IOException, TimeoutException {
+    public PaymentOrderPublisher() throws IOException, TimeoutException {
         // Attribute setzten, Werte in QueueConfig
         this.queueName = PaymentQueueConfig.queueName();
         this.connection = PaymentQueueConfig.connectionFactory().newConnection();
@@ -30,7 +30,7 @@ public final class PaymentOrderPublisherv2 implements AutoCloseable {
 
     // PaymentOrder in die Queue schreiben
     // TODO was macht AQMP
-    public void publish(PaymentOrderv2 paymentOrder) throws IOException {
+    public void publish(PaymentOrder paymentOrder) throws IOException {
         byte[] body = objectMapper.writeValueAsString(paymentOrder).getBytes(StandardCharsets.UTF_8);
         AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
                 .contentType("application/json")
