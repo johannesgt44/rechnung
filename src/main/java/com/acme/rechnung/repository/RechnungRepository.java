@@ -1,0 +1,64 @@
+package com.acme.rechnung.repository;
+
+import com.acme.rechnung.invoice.v1.Rechnungsdaten;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+// Ein einfacher Speicher für die Rechnungsmetadaten
+
+public final class RechnungRepository {
+    private final Map<String, Rechnungsdaten> rechnungen = new ConcurrentHashMap<>();
+    private final Map<String, String> rechnungIdsNachFachschluessel = new ConcurrentHashMap<>();
+
+    public Rechnungsdaten create(Rechnungsdaten metadata) {
+        String rechnungsId = metadata.getRechnungsId().isBlank()
+                ? UUID.randomUUID().toString()
+                : metadata.getRechnungsId();
+        Rechnungsdaten gespeicherteMetadaten = metadata.toBuilder()
+                .setRechnungsId(rechnungsId)
+                .build();
+        rechnungen.put(rechnungsId, gespeicherteMetadaten);
+        rechnungIdsNachFachschluessel.put(fachschluesselVon(gespeicherteMetadaten), rechnungsId);
+        return gespeicherteMetadaten;
+    }
+
+    public Optional<Rechnungsdaten> findById(String rechnungsId) {
+        return Optional.ofNullable(rechnungen.get(rechnungsId));
+    }
+
+    public Optional<String> findRechnungsIdByFachschluessel(String lieferantenName, String rechnungsNummer) {
+        return Optional.ofNullable(
+                rechnungIdsNachFachschluessel.get(fachschluesselVon(lieferantenName, rechnungsNummer))
+        );
+    }
+
+    public Rechnungsdaten update(Rechnungsdaten metadata) {
+        Rechnungsdaten bestehendeRechnung = rechnungen.get(metadata.getRechnungsId());
+        String neuerFachschluessel = fachschluesselVon(metadata);
+
+        if (bestehendeRechnung != null) {
+            String bisherigerFachschluessel = fachschluesselVon(bestehendeRechnung);
+            rechnungIdsNachFachschluessel.put(neuerFachschluessel, metadata.getRechnungsId());
+            if (!bisherigerFachschluessel.equals(neuerFachschluessel)) {
+                rechnungIdsNachFachschluessel.remove(bisherigerFachschluessel, metadata.getRechnungsId());
+            }
+        }
+
+        Rechnungsdaten gespeicherteMetadaten = metadata.toBuilder()
+                .setRechnungsId(metadata.getRechnungsId())
+                .build();
+        rechnungen.put(metadata.getRechnungsId(), gespeicherteMetadaten);
+        rechnungIdsNachFachschluessel.put(fachschluesselVon(gespeicherteMetadaten), metadata.getRechnungsId());
+        return gespeicherteMetadaten;
+    }
+
+    private static String fachschluesselVon(Rechnungsdaten metadata) {
+        return fachschluesselVon(metadata.getLieferantenName(), metadata.getRechnungsNummer());
+    }
+
+    private static String fachschluesselVon(String lieferantenName, String rechnungsNummer) {
+        return lieferantenName.trim().toLowerCase() + "::" + rechnungsNummer.trim().toLowerCase();
+    }
+}
