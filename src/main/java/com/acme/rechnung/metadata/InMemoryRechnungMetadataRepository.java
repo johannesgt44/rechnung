@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+// Ein einfacher Speicher für die Rechnungsmetadaten
+
 final class InMemoryRechnungMetadataRepository implements RechnungMetadataRepository {
     private final Map<String, Rechnungsdaten> rechnungen = new ConcurrentHashMap<>();
 
