@@ -6,8 +6,6 @@ import com.acme.rechnung.invoice.v1.GetRechnungMetadataRequest;
 import com.acme.rechnung.invoice.v1.GetRechnungMetadataResponse;
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import com.acme.rechnung.invoice.v1.RechnungMetadataServiceGrpc;
-// import com.acme.rechnung.invoice.v1.UpdateRechnungMetadataRequest;
-// import com.acme.rechnung.invoice.v1.UpdateRechnungMetadataResponse;
 import com.acme.rechnung.service.RechnungBereitsErfasstException;
 import com.acme.rechnung.service.RechnungNichtGefundenException;
 import com.acme.rechnung.service.RechnungService;
@@ -20,7 +18,7 @@ final class RechnungMetadataGrpcService extends RechnungMetadataServiceGrpc.Rech
     private final RechnungService rechnungService;
     private final RechnungWriteService rechnungWriteService;
 
-    /* Constructor Injection durch Konstruktor*/
+    /** Constructor Injection durch Konstruktor*/
     RechnungMetadataGrpcService(RechnungService rechnungService, RechnungWriteService rechnungWriteService) {
         this.rechnungService = rechnungService;
         this.rechnungWriteService = rechnungWriteService;
@@ -108,42 +106,4 @@ final class RechnungMetadataGrpcService extends RechnungMetadataServiceGrpc.Rech
                     .asRuntimeException());
         }
     }
-
-    /*
-    @Override
-    public void updateRechnungMetadata(
-            UpdateRechnungMetadataRequest request,
-            StreamObserver<UpdateRechnungMetadataResponse> responseObserver
-    ) {
-        if (!request.hasMetadata()) {
-            responseObserver.onError(Status.INVALID_ARGUMENT
-                    .withDescription("metadata ist erforderlich")
-                    .asRuntimeException());
-            return;
-        }
-
-        try {
-            Rechnungsdaten gespeicherteMetadaten = rechnungWriteService.update(request.getMetadata());
-            UpdateRechnungMetadataResponse response = UpdateRechnungMetadataResponse.newBuilder()
-                    .setMetadata(gespeicherteMetadaten)
-                    .setStatus("UPDATED")
-                    .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        } catch (RechnungBereitsErfasstException exception) {
-            responseObserver.onError(Status.ALREADY_EXISTS
-                    .withDescription(exception.getMessage())
-                    .asRuntimeException());
-        } catch (RechnungNichtGefundenException exception) {
-            responseObserver.onError(Status.NOT_FOUND
-                    .withDescription(exception.getMessage())
-                    .asRuntimeException());
-        } catch (IllegalArgumentException exception) {
-            responseObserver.onError(Status.INVALID_ARGUMENT
-                    .withDescription(exception.getMessage())
-                    .asRuntimeException());
-        }
-    }
-    */
 }

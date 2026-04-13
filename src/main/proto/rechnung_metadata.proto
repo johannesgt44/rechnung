@@ -11,7 +11,6 @@ option java_outer_classname = "RechnungMetadataProto";
 service RechnungMetadataService {
   rpc CreateRechnungMetadata(CreateRechnungMetadataRequest) returns (CreateRechnungMetadataResponse);
   rpc GetRechnungMetadata(GetRechnungMetadataRequest) returns (GetRechnungMetadataResponse);
-  rpc UpdateRechnungMetadata(UpdateRechnungMetadataRequest) returns (UpdateRechnungMetadataResponse);
 }
 
 message Rechnungsdaten {
@@ -38,13 +37,4 @@ message GetRechnungMetadataRequest {
 
 message GetRechnungMetadataResponse {
   Rechnungsdaten metadata = 1;
-}
-
-message UpdateRechnungMetadataRequest {
-  Rechnungsdaten metadata = 1;
-}
-
-message UpdateRechnungMetadataResponse {
-  Rechnungsdaten metadata = 1;
-  string status = 2;
 }

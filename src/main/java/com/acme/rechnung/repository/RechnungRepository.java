@@ -41,26 +41,6 @@ public final class RechnungRepository {
         );
     }
 
-    public Rechnungsdaten update(Rechnungsdaten metadata) {
-        Rechnungsdaten bestehendeRechnung = rechnungen.get(metadata.getRechnungsId());
-        String neuerFachschluessel = fachschluesselVon(metadata);
-
-        if (bestehendeRechnung != null) {
-            String bisherigerFachschluessel = fachschluesselVon(bestehendeRechnung);
-            rechnungIdsNachFachschluessel.put(neuerFachschluessel, metadata.getRechnungsId());
-            if (!bisherigerFachschluessel.equals(neuerFachschluessel)) {
-                rechnungIdsNachFachschluessel.remove(bisherigerFachschluessel, metadata.getRechnungsId());
-            }
-        }
-
-        Rechnungsdaten gespeicherteMetadaten = metadata.toBuilder()
-                .setRechnungsId(metadata.getRechnungsId())
-                .build();
-        rechnungen.put(metadata.getRechnungsId(), gespeicherteMetadaten);
-        rechnungIdsNachFachschluessel.put(fachschluesselVon(gespeicherteMetadaten), metadata.getRechnungsId());
-        return gespeicherteMetadaten;
-    }
-
     // Liest Lieferantenname und Rechnungsnummer aus den Rechnungsdaten aus
     // und übergibt sie an die eigentliche Fachschlüssel-Bildung
     // KI
