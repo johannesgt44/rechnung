@@ -12,7 +12,7 @@ public final class RechnungRepository {
     private final Map<String, Rechnungsdaten> rechnungen = new ConcurrentHashMap<>();
     private final Map<String, String> rechnungIdsNachFachschluessel = new ConcurrentHashMap<>();
 
-    // speichert die Rechnung
+    // speichert die Rechnung Lokal
     public Rechnungsdaten create(Rechnungsdaten metadata) {
         String rechnungsId = metadata.getRechnungsId().isBlank()
                 ? UUID.randomUUID().toString()
