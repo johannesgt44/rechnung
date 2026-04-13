@@ -1,3 +1,4 @@
+// Wurde mit KI erstellt 
 # Rechnung
 
 Sprint-1-Grundlage fuer die Integrationsarchitektur zur Eingangsrechnungsverarbeitung.
