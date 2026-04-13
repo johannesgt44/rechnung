@@ -71,6 +71,7 @@ public final class RechnungClient {
             CreateRechnungMetadataResponse response = stub.createRechnungMetadata(request);
             return response.getMetadata();
         }
+        // Exception ausgeben wenn eine ID schon existiert
         catch (StatusRuntimeException exception) {
             if (exception.getStatus().getCode() == Status.Code.ALREADY_EXISTS) {
                 System.out.print(exception.getMessage());
