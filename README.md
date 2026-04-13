@@ -4,17 +4,17 @@ Sprint-1-Grundlage fuer die Integrationsarchitektur zur Eingangsrechnungsverarbe
 
 ## Komponenten
 
-- `invoice-metadata-service`: gRPC-Service zum Speichern von Rechnungsmetadaten
-- `payment-service`: Messaging-Consumer fuer Zahlungsauftraege
-- `invoice-client`: Client, der Metadaten speichert und Zahlungen veranlasst
+- `rechnung-metadata-server`: gRPC-Service zum Speichern von Rechnungsmetadaten
+- `zahlung-service`: Messaging-Consumer fuer Zahlungsauftraege
+- `rechnungs-client`: Client, der Metadaten speichert und Zahlungen veranlasst
 
 ## Aktueller Stand
 
-Der gRPC-Vertrag liegt in `src/main/proto/invoice_metadata.proto`.
+Der gRPC-Vertrag liegt in `src/main/proto/rechnung_metadata.proto`.
 
-Der Server startet den `InvoiceMetadataService` auf Port `50051` und speichert Rechnungsmetadaten zunaechst in-memory.
+Der Server startet den `RechnungMetadataServer` auf Port `50051` und speichert Rechnungsmetadaten zunaechst in-memory.
 
-RabbitMQ wird als Message Broker verwendet. Der Payment-Service konsumiert Nachrichten aus der Queue `payment.orders`.
+RabbitMQ wird als Message Broker verwendet. Der Zahlung-Service konsumiert Nachrichten aus der Queue `payment.orders`.
 
 ## Demo starten
 
@@ -30,19 +30,25 @@ Terminal 1: gRPC-Service starten.
 .\gradlew.bat run
 ```
 
-Terminal 2: Payment-Service starten.
+Terminal 2: Zahlung-Service starten.
 
 ```powershell
-.\gradlew.bat runPaymentService
+.\gradlew.bat runZahlungService
 ```
 
 Terminal 3: Client ausfuehren.
 
 ```powershell
-.\gradlew.bat runInvoiceClient
+.\gradlew.bat runRechnungsClient
 ```
 
-Der Client speichert eine Beispielrechnung ueber gRPC und sendet anschliessend einen Zahlungsauftrag an RabbitMQ. Der Payment-Service verarbeitet diese Nachricht und bestaetigt sie.
+Der Client speichert eine Beispielrechnung ueber gRPC und sendet anschliessend einen Zahlungsauftrag an RabbitMQ. Der Zahlung-Service verarbeitet diese Nachricht und bestaetigt sie.
+
+## Verfuegbare Gradle-Tasks
+
+- `.\gradlew.bat run` startet den Server
+- `.\gradlew.bat runZahlungService` startet den Zahlung-Service
+- `.\gradlew.bat runRechnungsClient` startet den Rechnungs-Client
 
 ## Konfiguration
 

@@ -52,16 +52,16 @@ application {
     mainClass = "com.acme.rechnung.metadata.RechnungMetadataServer"
 }
 
-tasks.register<JavaExec>("runPaymentService") {
+tasks.register<JavaExec>("runZahlungService") {
     group = "application"
     description = "Startet den RabbitMQ-Zahlungsdienst."
     classpath = sourceSets["main"].runtimeClasspath
     mainClass = "com.acme.rechnung.zahlung.ZahlungsServiceWorker"
 }
 
-tasks.register<JavaExec>("runInvoiceClient") {
+tasks.register<JavaExec>("runRechnungsClient") {
     group = "application"
-    description = "Startet einen Beispiel-Client, der Rechnungsmetadaten speichert und einen Zahlungsauftrag versendet."
+    description = "Startet den Rechnungs-Client."
     classpath = sourceSets["main"].runtimeClasspath
     mainClass = "com.acme.rechnung.client.RechnungClient"
 }
