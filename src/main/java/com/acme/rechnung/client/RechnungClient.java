@@ -10,13 +10,17 @@ import com.acme.rechnung.zahlung.Zahlungsauftrag;
 import com.acme.rechnung.zahlung.ZahlungsauftragPublisher;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public final class RechnungClient {
     private RechnungClient() {
     }
 
-    public static void main(String[] args) throws Exception {
+    static void main() throws Exception {
+        // Verbindung zu grpc-Service
         String grpcHost = umgebungswert("INVOICE_METADATA_HOST", "localhost");
         int grpcPort = Integer.parseInt(umgebungswert("INVOICE_METADATA_PORT", "50051"));
 
@@ -25,40 +29,62 @@ public final class RechnungClient {
                 .build();
 
         try {
-            Rechnungsdaten gespeicherteMetadaten = createRechnungMetadata(channel);
-            Rechnungsdaten geleseneMetadaten = leseRechnungMetadata(channel, gespeicherteMetadaten.getRechnungsId());
-            veroeffentlicheZahlungsauftrag(gespeicherteMetadaten);
-            System.out.printf(
-                    "RechnungClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
-                    geleseneMetadaten.getRechnungsId(),
-                    geleseneMetadaten.getLieferantenName(),
-                    geleseneMetadaten.getGesamtbetragBrutto(),
-                    geleseneMetadaten.getWaehrung()
-            );
+            // Schleife damit es für alle Mock-Metadaten durchläuft
+            for (Rechnungsdaten testdaten : createMockRechnungen()) {
+                Rechnungsdaten gespeicherteMetadaten = createRechnungMetadata(channel, testdaten);
+                Rechnungsdaten geleseneMetadaten =
+                        leseRechnungMetadata(channel, gespeicherteMetadaten.getRechnungsId());
+
+                veroeffentlicheZahlungsauftrag(gespeicherteMetadaten);
+
+                // Ausgabe der Rechnungsmetadaten in die Konsole
+                System.out.printf(
+                        "RechnungClient completed: invoiceId=%s supplier=%s amount=%s %s%n",
+                        geleseneMetadaten.getRechnungsId(),
+                        geleseneMetadaten.getLieferantenName(),
+                        geleseneMetadaten.getGesamtbetragBrutto(),
+                        geleseneMetadaten.getWaehrung()
+                );
+            }
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
-    private static Rechnungsdaten createRechnungMetadata(ManagedChannel channel) {
-        Rechnungsdaten metadata = Rechnungsdaten.newBuilder()
-                .setLieferantenName("Muster Lieferant GmbH")
-                .setRechnungsNummer("RE-2026-0001")
-                .setRechnungsDatum("2026-04-07")
-                .setGesamtbetragBrutto("1190.00")
-                .setWaehrung("EUR")
-                .build();
-
+    /// Erstellt ein Rechnungsdaten-Objekt alles allen Eintragen der Liste der Mockdaten
+    private static Rechnungsdaten createRechnungMetadata(ManagedChannel channel, Rechnungsdaten metadata) {
         CreateRechnungMetadataRequest request = CreateRechnungMetadataRequest.newBuilder()
                 .setMetadata(metadata)
                 .build();
 
+        // Metadaten an der grpc-Client senden
         RechnungMetadataServiceGrpc.RechnungMetadataServiceBlockingStub stub =
                 RechnungMetadataServiceGrpc.newBlockingStub(channel);
+
         CreateRechnungMetadataResponse response = stub.createRechnungMetadata(request);
         return response.getMetadata();
     }
 
+    /// Erstellen der Mockdaten für die Rechnungsmetadaten (25 Stück)
+    private static List<Rechnungsdaten> createMockRechnungen() {
+        List<Rechnungsdaten> rechnungen = new ArrayList<>();
+
+        for (int i = 1; i <= 25; i++) {
+            Rechnungsdaten rechnung = Rechnungsdaten.newBuilder()
+                    .setLieferantenName("Lieferant " + i + " GmbH")
+                    .setRechnungsNummer(String.format("RE-2026-%04d", i))
+                    .setRechnungsDatum(String.format("2026-04-%02d", (i % 28) + 1))
+                    .setGesamtbetragBrutto(String.format("%d.00", 100 + i * 25))
+                    .setWaehrung("EUR")
+                    .build();
+
+            rechnungen.add(rechnung);
+        }
+
+        return rechnungen;
+    }
+
+    /// Die erstellten Metadaten aus dem grpc-Service auslesen
     private static Rechnungsdaten leseRechnungMetadata(ManagedChannel channel, String rechnungsId) {
         GetRechnungMetadataRequest request = GetRechnungMetadataRequest.newBuilder()
                 .setRechnungsId(rechnungsId)
@@ -70,6 +96,7 @@ public final class RechnungClient {
         return response.getMetadata();
     }
 
+    /// aus den Metadaten einen Zahlungsauftrag erstellen und diesen in die Queue an rabbitMQ schicken
     private static void veroeffentlicheZahlungsauftrag(Rechnungsdaten gespeicherteMetadaten) throws Exception {
         Zahlungsauftrag zahlungsauftrag = Zahlungsauftrag.toZahlungsauftrag(gespeicherteMetadaten);
         try (ZahlungsauftragPublisher publisher = new ZahlungsauftragPublisher()) {
@@ -77,6 +104,7 @@ public final class RechnungClient {
         }
     }
 
+    /// Umgebungswert für den grpc-Service setzen
     private static String umgebungswert(String name, String defaultValue) {
         String value = System.getenv(name);
         return value == null || value.isBlank() ? defaultValue : value;

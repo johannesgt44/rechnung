@@ -3,8 +3,7 @@ package com.acme.rechnung.zahlung;
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import java.util.UUID;
 
-// Objekt, um einen Zahlungsauftrag zu speichern.
-// TODO evt Typen anpassen
+/// Objekt, um einen Zahlungsauftrag zu speichern.
 public record Zahlungsauftrag(
         String zahlungsId,
         String rechnungsId,
