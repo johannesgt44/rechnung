@@ -1,3 +1,4 @@
+/*Selbstgecoded mit KI Vorschlag als Template*/
 package com.acme.rechnung.zahlung;
 
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;

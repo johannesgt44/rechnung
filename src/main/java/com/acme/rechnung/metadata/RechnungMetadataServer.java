@@ -1,3 +1,4 @@
+/*Selbstgecoded mit KI als Template*/
 package com.acme.rechnung.metadata;
 
 import com.acme.rechnung.repository.RechnungRepository;

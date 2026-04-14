@@ -1,3 +1,5 @@
+/*Selbstgecoded mit KI Vorschlag als Template*/
+
 package com.acme.rechnung.zahlung;
 
 import com.rabbitmq.client.ConnectionFactory;

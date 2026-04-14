@@ -1,3 +1,4 @@
+/* Selbstgecoded, Überarbeitung mit KI */
 syntax = "proto3";
 
 package rechnung.invoice.v1;

@@ -1,3 +1,4 @@
+/*Selbstgecoded mit KI als Template, überarbeitet mit KI, anschließend wieder eigene Ergänzung*/
 package com.acme.rechnung.client;
 
 import com.acme.rechnung.invoice.v1.CreateRechnungMetadataRequest;

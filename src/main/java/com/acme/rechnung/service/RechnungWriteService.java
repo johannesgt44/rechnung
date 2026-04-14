@@ -1,3 +1,4 @@
+/* Gecoded mithilfe von KI, als vorlage SWA-Projekt genutzt, an dessen Stil orientiert.*/
 package com.acme.rechnung.service;
 
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;

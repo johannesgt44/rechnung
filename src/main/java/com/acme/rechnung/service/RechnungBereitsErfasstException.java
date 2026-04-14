@@ -1,3 +1,4 @@
+/* Gecoded mithilfe von KI, als vorlage SWA-Projekt genutzt.*/
 package com.acme.rechnung.service;
 
 public final class RechnungBereitsErfasstException extends RuntimeException {

@@ -1,3 +1,5 @@
+/*Selbstgecoded mit KI Vorschlag als Template(Unterer Part)*/
+
 package com.acme.rechnung.zahlung;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
