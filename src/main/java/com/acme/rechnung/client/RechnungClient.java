@@ -11,6 +11,8 @@ import com.acme.rechnung.zahlung.Zahlungsauftrag;
 import com.acme.rechnung.zahlung.ZahlungsauftragPublisher;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ public final class RechnungClient {
             // Schleife damit es für alle Mock-Metadaten durchläuft
             for (Rechnungsdaten testdaten : createMockRechnungen()) {
                 Rechnungsdaten gespeicherteMetadaten = createRechnungMetadata(channel, testdaten);
+                if (gespeicherteMetadaten == null) {
+                    continue;
+                }
                 Rechnungsdaten geleseneMetadaten =
                         leseRechnungMetadata(channel, gespeicherteMetadaten.getRechnungsId());
 
@@ -47,7 +52,8 @@ public final class RechnungClient {
                         geleseneMetadaten.getWaehrung()
                 );
             }
-        } finally {
+        }
+        finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
@@ -62,8 +68,18 @@ public final class RechnungClient {
         RechnungMetadataServiceGrpc.RechnungMetadataServiceBlockingStub stub =
                 RechnungMetadataServiceGrpc.newBlockingStub(channel);
 
-        CreateRechnungMetadataResponse response = stub.createRechnungMetadata(request);
-        return response.getMetadata();
+        try {
+            CreateRechnungMetadataResponse response = stub.createRechnungMetadata(request);
+            return response.getMetadata();
+        }
+        // Exception ausgeben wenn eine ID schon existiert
+        catch (StatusRuntimeException exception) {
+            if (exception.getStatus().getCode() == Status.Code.ALREADY_EXISTS) {
+                System.out.print(exception.getMessage());
+                return null;
+            }
+            throw exception;
+        }
     }
 
     /// Erstellen der Mockdaten für die Rechnungsmetadaten (25 Stück)
@@ -81,6 +97,17 @@ public final class RechnungClient {
 
             rechnungen.add(rechnung);
         }
+
+        // Dublette um RechnungBereitsErfasstException abzufangen
+        Rechnungsdaten rechnung = Rechnungsdaten.newBuilder()
+                .setLieferantenName("Lieferant " + 1 + " GmbH")
+                .setRechnungsNummer(String.format("RE-2026-%04d", 1))
+                .setRechnungsDatum(String.format("2026-04-%02d", (1 % 28) + 1))
+                .setGesamtbetragBrutto(String.format("%d.00", 100 + 25))
+                .setWaehrung("EUR")
+                .build();
+
+        rechnungen.add(rechnung);
 
         return rechnungen;
     }
