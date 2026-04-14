@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public final class RechnungMetadataServer {
 
-    //Standart-Port wird gesetzt
+    //Standard-Port wird gesetzt
     private static final int DEFAULT_PORT = 50051;
 
     private final Server server;
@@ -36,27 +36,34 @@ public final class RechnungMetadataServer {
      *Startpunkt der Anwendung
      */
     public static void main(String[] args) throws IOException, InterruptedException {
-        //Prüfen, ob ein Port angegeben wurde. Ansonsten Standart-Port verwenden
+        //Prüfen, ob ein Port angegeben wurde. Ansonsten Standard-Port verwenden
         int port = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
+        // Server nach Bauplan erstellen
         RechnungMetadataServer rechnungMetadataServer = new RechnungMetadataServer(port);
+        // Server hochfahren
         rechnungMetadataServer.start();
+        // Blockiert Haupt-Thread -> Programm schließt nicht sofort
         rechnungMetadataServer.awaitTermination();
     }
 
+    // Startet den Server
     private void start() throws IOException {
         server.start();
         System.out.printf("InvoiceMetadataService started on port %d%n", server.getPort());
 
+        // Sorgt dafür, dass der Server sauber heruntergefahren wird, wenn das Programm beendet wird
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Stopping InvoiceMetadataService");
             RechnungMetadataServer.this.stop();
         }));
     }
 
+    // Schaltet den Server ab
     private void stop() {
         server.shutdown();
     }
 
+    // Lässt das Programm warten, solange Server läuft
     private void awaitTermination() throws InterruptedException {
         server.awaitTermination();
     }
