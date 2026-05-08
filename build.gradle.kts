@@ -13,6 +13,7 @@ repositories {
 
 val grpcVersion = "1.65.1"
 val jacksonVersion = "2.17.2"
+val camundaVersion = "8.9.0"
 val protobufVersion = "3.25.5"
 val rabbitmqVersion = "5.22.0"
 
@@ -23,6 +24,7 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:$protobufVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.rabbitmq:amqp-client:$rabbitmqVersion")
+    implementation("io.camunda:camunda-client-java:$camundaVersion")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
@@ -59,11 +61,11 @@ tasks.register<JavaExec>("runZahlungService") {
     mainClass = "com.acme.rechnung.zahlung.ZahlungsServiceWorker"
 }
 
-tasks.register<JavaExec>("runRechnungsClient") {
+tasks.register<JavaExec>("runRechnungsmetadatenWorker") {
     group = "application"
-    description = "Startet den Rechnungs-Client."
+    description = "Startet den Camunda Job Worker zum Speichern von Rechnungsmetadaten."
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.acme.rechnung.client.RechnungClient"
+    mainClass = "com.acme.rechnung.camunda.RechnungsmetadatenSpeichernWorker"
 }
 
 tasks.test {

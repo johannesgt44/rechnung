@@ -7,7 +7,7 @@ Sprint-1-Grundlage fuer die Integrationsarchitektur zur Eingangsrechnungsverarbe
 
 - `rechnung-metadata-server`: gRPC-Service zum Speichern von Rechnungsmetadaten
 - `zahlung-service`: Messaging-Consumer fuer Zahlungsauftraege
-- `rechnungs-client`: Client, der Metadaten speichert und Zahlungen veranlasst
+- `rechnungsmetadaten-worker`: Camunda Job Worker, der den gRPC-Metadatenservice aufruft
 
 ## Aktueller Stand
 
@@ -37,19 +37,37 @@ Terminal 2: Zahlung-Service starten.
 .\gradlew.bat runZahlungService
 ```
 
-Terminal 3: Client ausfuehren.
+Terminal 3: Camunda Job Worker starten.
 
 ```powershell
-.\gradlew.bat runRechnungsClient
+.\gradlew.bat runRechnungsmetadatenWorker
 ```
 
-Der Client speichert eine Beispielrechnung ueber gRPC und sendet anschliessend einen Zahlungsauftrag an RabbitMQ. Der Zahlung-Service verarbeitet diese Nachricht und bestaetigt sie.
+Im Camunda Modeler muss beim Service Task `Rechnungsmetadaten speichern` dieser Job Type eingetragen werden:
+
+```text
+rechnungsmetadaten-speichern
+```
+
+Der Worker liest die Prozessvariablen aus Camunda, ruft intern den gRPC-Service auf und speichert die Rechnungsmetadaten mit der bestehenden Validierung.
+
+Notwendige Prozessvariablen:
+
+```json
+{
+  "lieferantenName": "Lieferant 1 GmbH",
+  "rechnungsNummer": "RE-2026-0001",
+  "rechnungsDatum": "2026-04-02",
+  "gesamtbetragBrutto": "125.00",
+  "waehrung": "EUR"
+}
+```
 
 ## Verfuegbare Gradle-Tasks
 
 - `.\gradlew.bat run` startet den Server
 - `.\gradlew.bat runZahlungService` startet den Zahlung-Service
-- `.\gradlew.bat runRechnungsClient` startet den Rechnungs-Client
+- `.\gradlew.bat runRechnungsmetadatenWorker` startet den Camunda Job Worker
 
 ## Konfiguration
 
