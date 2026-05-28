@@ -11,11 +11,10 @@ Aktuelle technische Bausteine:
 - Java-Anwendung mit Gradle
 - gRPC-Service fuer Rechnungsmetadaten
 - In-Memory-Repository fuer Rechnungsdaten
-- RabbitMQ als Message Broker
-- Zahlungsservice als RabbitMQ-Consumer
-- Demo-Client, der Beispielrechnungen erzeugt, speichert und Zahlungsauftraege sendet
+- separater Zahlungsservice im Projekt `zahlungssystem`
+- Camunda Worker fuer Rechnungsmetadaten
 
-Wichtig: Camunda/BPMN ist aktuell noch nicht im Code integriert. Das BPMN-Modell soll vermutlich den bestehenden Ablauf fachlich modellieren und spaeter technische Service Tasks/Worker gegen gRPC und RabbitMQ anbinden.
+Wichtig: Der Zahlungsauftrag wird nicht mehr in diesem Projekt erzeugt oder verarbeitet. Das BPMN-Modell soll den Zahlungsauftrag ueber den separaten Zahlungsservice im Projekt `zahlungssystem` an RabbitMQ anbinden.
 
 ## Relevante Dateien
 
@@ -25,27 +24,20 @@ Wichtig: Camunda/BPMN ist aktuell noch nicht im Code integriert. Das BPMN-Modell
 - `src/main/java/com/acme/rechnung/service/RechnungWriteService.java`: Validierung und Dublettenpruefung beim Erfassen
 - `src/main/java/com/acme/rechnung/service/RechnungService.java`: Lesender Zugriff auf Rechnungsdaten
 - `src/main/java/com/acme/rechnung/repository/RechnungRepository.java`: In-Memory-Speicher und Fachschluessel-Dublettenlogik
-- `src/main/java/com/acme/rechnung/client/RechnungClient.java`: Demo-Client mit 25 Beispielrechnungen plus Dublette
-- `src/main/java/com/acme/rechnung/zahlung/Zahlungsauftrag.java`: Datenmodell fuer Zahlungsauftrag
-- `src/main/java/com/acme/rechnung/zahlung/ZahlungsauftragPublisher.java`: Sendet Zahlungsauftraege als JSON nach RabbitMQ
-- `src/main/java/com/acme/rechnung/zahlung/ZahlungsServiceWorker.java`: Konsumiert Zahlungsauftraege aus RabbitMQ und bestaetigt/verwirft Nachrichten
-- `src/main/java/com/acme/rechnung/zahlung/ZahlungsQueueConfig.java`: RabbitMQ-Konfiguration
+- `src/main/java/com/acme/rechnung/camunda/RechnungsmetadatenSpeichernWorker.java`: Camunda Worker fuer Rechnungsmetadaten
+- `../zahlungssystem/src/main/java/com/acme/zahlung/ZahlungsauftragCamundaWorker.java`: Camunda Worker, der Zahlungsauftraege nach RabbitMQ sendet
+- `../zahlungssystem/src/main/java/com/acme/zahlung/ZahlungsServiceWorker.java`: Konsumiert Zahlungsauftraege aus RabbitMQ und bestaetigt/verwirft Nachrichten
 - `docker-compose.yml`: Startet RabbitMQ mit Management UI
 
 ## Aktueller Demo-Ablauf
 
 1. RabbitMQ wird per Docker gestartet.
 2. Der gRPC-Metadatenserver wird gestartet.
-3. Der Zahlungsservice-Worker wird gestartet und wartet auf RabbitMQ-Nachrichten.
-4. Der Demo-Client erzeugt 25 Rechnungen plus eine absichtliche Dublette.
-5. Fuer jede Rechnung sendet der Client `CreateRechnungMetadata` an den gRPC-Server.
-6. Der Server validiert Pflichtfelder und prueft Dubletten.
-7. Bei Erfolg speichert das Repository die Rechnung in-memory und erzeugt bei fehlender `rechnungs_id` automatisch eine UUID.
-8. Der Client liest die gespeicherte Rechnung per `GetRechnungMetadata` wieder aus.
-9. Der Client erzeugt daraus einen `Zahlungsauftrag`.
-10. Der Client sendet den Zahlungsauftrag als JSON-Nachricht an RabbitMQ in die Queue `payment.orders`.
-11. Der Zahlungsservice-Worker empfaengt die Nachricht, deserialisiert sie, gibt eine Erfolgsmeldung aus und bestaetigt die Nachricht mit `basicAck`.
-12. Falls der Worker eine Nachricht nicht verarbeiten kann, sendet er `basicNack` mit `requeue=false`; die Nachricht wird also nicht erneut eingereiht.
+3. Der Rechnungsmetadaten-Worker speichert Rechnungsdaten ueber den gRPC-Server.
+4. Der Zahlungsauftrag-Worker im Projekt `zahlungssystem` erzeugt aus Camunda-Prozessvariablen einen `Zahlungsauftrag`.
+5. Der Zahlungsauftrag-Worker sendet den Zahlungsauftrag als JSON-Nachricht an RabbitMQ in die Queue `payment.orders`.
+6. Der Zahlungsservice-Worker im Projekt `zahlungssystem` empfaengt die Nachricht, deserialisiert sie, gibt eine Erfolgsmeldung aus und bestaetigt die Nachricht mit `basicAck`.
+7. Falls der Worker eine Nachricht nicht verarbeiten kann, sendet er `basicNack` mit `requeue=false`; die Nachricht wird also nicht erneut eingereiht.
 
 ## Fachliche Datenobjekte
 
@@ -62,7 +54,7 @@ Aus dem gRPC-Proto:
 
 ### Zahlungsauftrag
 
-Aus `Zahlungsauftrag`:
+Aus dem Zahlungsservice im Projekt `zahlungssystem`:
 
 - `zahlungsId`: technische ID des Zahlungsauftrags, wird als UUID erzeugt
 - `rechnungsId`: ID der gespeicherten Rechnung
