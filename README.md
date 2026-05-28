@@ -71,11 +71,9 @@ Wichtige Prozessvariablen:
   "lieferantenNummer": "L-1001",
   "rechnungsNummer": "RE-2026-0001",
   "rechnungsDatum": "2026-04-02",
-  "zahlungsziel": "14 Tage netto",
+  "zahlungszielTage": 14,
   "bemerkungen": "optional",
-  "gesamtbetragNetto": "100.00",
-  "gesamtbetragBrutto": "125.00",
-  "steuerbetrag": "25.00",
+  "gesamtbetragBrutto": "119.00",
   "waehrung": "EUR",
   "rechnungsposten": [
     {
@@ -83,7 +81,7 @@ Wichtige Prozessvariablen:
       "beschreibung": "Beispielposition",
       "menge": "1",
       "einheit": "Stk.",
-      "einzelpreisNetto": "100.00",
+      "einzelpreisBrutto": "119.00",
       "steuerProzent": "19"
     }
   ]

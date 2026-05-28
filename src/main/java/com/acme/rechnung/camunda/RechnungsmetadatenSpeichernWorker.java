@@ -110,14 +110,25 @@ public final class RechnungsmetadatenSpeichernWorker {
                 .setLieferantenNummer(jobInformation.getStringVariable("lieferantenNummer"))
                 .setRechnungsNummer(jobInformation.getStringVariable("rechnungsNummer"))
                 .setRechnungsDatum(jobInformation.getStringVariable("rechnungsDatum"))
-                .setZahlungsziel(jobInformation.getStringVariable("zahlungsziel"))
+                .setZahlungsziel(zahlungszielAus(jobInformation))
                 .setBemerkungen(jobInformation.getStringVariable("bemerkungen"))
-                .setGesamtbetragNetto(jobInformation.getStringVariable("gesamtbetragNetto"))
                 .setGesamtbetragBrutto(jobInformation.getStringVariable("gesamtbetragBrutto"))
-                .setSteuerbetrag(jobInformation.getStringVariable("steuerbetrag"))
                 .setWaehrung(jobInformation.getStringVariable("waehrung"))
                 .addAllRechnungsposten(rechnungspostenAus(jobInformation.getVariable("rechnungsposten")))
                 .build();
+    }
+
+    private static String zahlungszielAus(JobInformation jobInformation) {
+        String zahlungsziel = jobInformation.getStringVariable("zahlungsziel");
+        if (!zahlungsziel.isBlank()) {
+            return zahlungsziel;
+        }
+
+        String zahlungszielTage = jobInformation.getStringVariable("zahlungszielTage");
+        if (zahlungszielTage.isBlank()) {
+            return "";
+        }
+        return zahlungszielTage + " Tage netto";
     }
 
     private static Iterable<Rechnungsposten> rechnungspostenAus(Object value) {
@@ -133,7 +144,7 @@ public final class RechnungsmetadatenSpeichernWorker {
                         .setBeschreibung(postenWert(postenMap, "beschreibung"))
                         .setMenge(postenWert(postenMap, "menge"))
                         .setEinheit(postenWert(postenMap, "einheit"))
-                        .setEinzelpreisNetto(postenWert(postenMap, "einzelpreisNetto"))
+                        .setEinzelpreisBrutto(postenWert(postenMap, "einzelpreisBrutto"))
                         .setSteuerProzent(postenWert(postenMap, "steuerProzent"))
                         .build());
             }

@@ -24,8 +24,6 @@ message Rechnungsdaten {
   string zahlungsziel = 7;
   string bemerkungen = 8;
   repeated Rechnungsposten rechnungsposten = 9;
-  string gesamtbetrag_netto = 10;
-  string steuerbetrag = 11;
 }
 
 message Rechnungsposten {
@@ -33,7 +31,7 @@ message Rechnungsposten {
   string beschreibung = 2;
   string menge = 3;
   string einheit = 4;
-  string einzelpreis_netto = 5;
+  string einzelpreis_brutto = 5;
   string steuer_prozent = 6;
 }
 

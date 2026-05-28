@@ -37,6 +37,7 @@ public final class RechnungWriteService {
         if (metadata.getGesamtbetragBrutto().isBlank()) {
             throw new IllegalArgumentException("gesamtbetrag_brutto ist erforderlich");
         }
+        validiereZahl(metadata.getGesamtbetragBrutto(), "gesamtbetrag_brutto");
         if (metadata.getWaehrung().isBlank()) {
             throw new IllegalArgumentException("waehrung ist erforderlich");
         }
@@ -45,6 +46,26 @@ public final class RechnungWriteService {
         }
         if (metadata.getRechnungspostenCount() == 0) {
             throw new IllegalArgumentException("mindestens ein rechnungsposten ist erforderlich");
+        }
+        metadata.getRechnungspostenList().forEach(rechnungsposten -> {
+            String einheit = rechnungsposten.getEinheit();
+            if (!einheit.equals("Stk.") && !einheit.equals("Std.") && !einheit.equals("Pauschal")) {
+                throw new IllegalArgumentException("einheit muss Stk., Std. oder Pauschal sein");
+            }
+            validiereZahl(rechnungsposten.getMenge(), "menge");
+            validiereZahl(rechnungsposten.getEinzelpreisBrutto(), "einzelpreis_brutto");
+            validiereZahl(rechnungsposten.getSteuerProzent(), "steuer_prozent");
+        });
+    }
+
+    private static void validiereZahl(String value, String feldname) {
+        if (value.isBlank()) {
+            throw new IllegalArgumentException(feldname + " ist erforderlich");
+        }
+        try {
+            Double.parseDouble(value.replace(",", "."));
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(feldname + " muss eine Zahl sein");
         }
     }
 }
