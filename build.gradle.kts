@@ -12,18 +12,14 @@ repositories {
 }
 
 val grpcVersion = "1.65.1"
-val jacksonVersion = "2.17.2"
 val camundaVersion = "8.9.0"
 val protobufVersion = "3.25.5"
-val rabbitmqVersion = "5.22.0"
 
 dependencies {
     implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("com.google.protobuf:protobuf-java:$protobufVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.rabbitmq:amqp-client:$rabbitmqVersion")
     implementation("io.camunda:camunda-client-java:$camundaVersion")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
@@ -52,13 +48,6 @@ protobuf {
 
 application {
     mainClass = "com.acme.rechnung.metadata.RechnungMetadataServer"
-}
-
-tasks.register<JavaExec>("runZahlungService") {
-    group = "application"
-    description = "Startet den RabbitMQ-Zahlungsdienst."
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.acme.rechnung.zahlung.ZahlungsServiceWorker"
 }
 
 tasks.register<JavaExec>("runRechnungsmetadatenWorker") {
