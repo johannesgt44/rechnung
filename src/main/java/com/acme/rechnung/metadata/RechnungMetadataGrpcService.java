@@ -81,9 +81,9 @@ final class RechnungMetadataGrpcService extends RechnungMetadataServiceGrpc.Rech
         /* Überprüft, ob bei der Request des Clients eine ID des zu suchenden Rechnungsobjektes
         * angegeben wurde, im Fehlerfall dies dem Client mitteilen.
         */
-        if (request.getRechnungsId().isBlank()) {
+        if (request.getRechnungsNummer().isBlank()) {
             responseObserver.onError(Status.INVALID_ARGUMENT
-                    .withDescription("rechnungs_id ist erforderlich")
+                    .withDescription("rechnungs_nummer ist erforderlich")
                     .asRuntimeException());
             return;
         }
@@ -92,7 +92,7 @@ final class RechnungMetadataGrpcService extends RechnungMetadataServiceGrpc.Rech
          * Fehlerfallabdeckung.
          */
         try {
-            Rechnungsdaten metadata = rechnungService.findById(request.getRechnungsId());
+            Rechnungsdaten metadata = rechnungService.findById(request.getRechnungsNummer());
 
             /* Erstellen der Antwort, zusammen mit den Metadaten, anschließend Antwort dem Client
              * zuschicken und Antwort als "fertig" deklarieren (durch onCompleted()).*/

@@ -15,12 +15,26 @@ service RechnungMetadataService {
 }
 
 message Rechnungsdaten {
-  string rechnungs_id = 1;
-  string lieferanten_name = 2;
-  string rechnungs_nummer = 3;
-  string rechnungs_datum = 4;
-  string gesamtbetrag_brutto = 5;
-  string waehrung = 6;
+  string lieferanten_name = 1;
+  string rechnungs_nummer = 2;
+  string rechnungs_datum = 3;
+  string gesamtbetrag_brutto = 4;
+  string waehrung = 5;
+  string lieferanten_nummer = 6;
+  string zahlungsziel = 7;
+  string bemerkungen = 8;
+  repeated Rechnungsposten rechnungsposten = 9;
+  string gesamtbetrag_netto = 10;
+  string steuerbetrag = 11;
+}
+
+message Rechnungsposten {
+  int32 position = 1;
+  string beschreibung = 2;
+  string menge = 3;
+  string einheit = 4;
+  string einzelpreis_netto = 5;
+  string steuer_prozent = 6;
 }
 
 message CreateRechnungMetadataRequest {
@@ -33,7 +47,7 @@ message CreateRechnungMetadataResponse {
 }
 
 message GetRechnungMetadataRequest {
-  string rechnungs_id = 1;
+  string rechnungs_nummer = 1;
 }
 
 message GetRechnungMetadataResponse {

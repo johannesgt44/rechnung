@@ -16,7 +16,7 @@ public record Zahlungsauftrag(
     public static Zahlungsauftrag toZahlungsauftrag(Rechnungsdaten rechnungsdaten) {
         return new Zahlungsauftrag(
                 UUID.randomUUID().toString(),
-                rechnungsdaten.getRechnungsId(),
+                rechnungsdaten.getRechnungsNummer(),
                 rechnungsdaten.getLieferantenName(),
                 rechnungsdaten.getRechnungsNummer(),
                 rechnungsdaten.getGesamtbetragBrutto(),

@@ -20,13 +20,12 @@ public final class RechnungWriteService {
     public Rechnungsdaten create(Rechnungsdaten metadata) {
         validierePflichtfelder(metadata);
         /* Überprüfung ob Rechnung aus der Request bereits existiert, im Fehlerfall eine Ausnahme werfen.*/
-        repository.findRechnungsIdByFachschluessel(metadata.getLieferantenName(), metadata.getRechnungsNummer())
-                .ifPresent(rechnungsId -> {
-                    throw new RechnungBereitsErfasstException(
-                            metadata.getLieferantenName(),
-                            metadata.getRechnungsNummer()
-                    );
-                });
+        if (repository.existsByRechnungsNummer(metadata.getRechnungsNummer())) {
+            throw new RechnungBereitsErfasstException(
+                    metadata.getLieferantenName(),
+                    metadata.getRechnungsNummer()
+            );
+        }
         return repository.create(metadata);
     }
 
@@ -40,6 +39,12 @@ public final class RechnungWriteService {
         }
         if (metadata.getWaehrung().isBlank()) {
             throw new IllegalArgumentException("waehrung ist erforderlich");
+        }
+        if (metadata.getZahlungsziel().isBlank()) {
+            throw new IllegalArgumentException("zahlungsziel ist erforderlich");
+        }
+        if (metadata.getRechnungspostenCount() == 0) {
+            throw new IllegalArgumentException("mindestens ein rechnungsposten ist erforderlich");
         }
     }
 }

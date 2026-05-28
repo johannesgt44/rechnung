@@ -36,5 +36,8 @@ bin/
 ### VS Code ###
 .vscode/
 
+### Local secrets ###
+CamundaClientCredentials.properties
+
 ### Mac OS ###
 .DS_Store

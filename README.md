@@ -46,7 +46,7 @@ Terminal 3: Camunda Job Worker starten.
 Im Camunda Modeler muss beim Service Task `Rechnungsmetadaten speichern` dieser Job Type eingetragen werden:
 
 ```text
-rechnungsmetadaten-speichern
+rechnung-metadaten-speichern
 ```
 
 Der Worker liest die Prozessvariablen aus Camunda, ruft intern den gRPC-Service auf und speichert die Rechnungsmetadaten mit der bestehenden Validierung.
