@@ -11,8 +11,8 @@ repositories {
     mavenCentral()
 }
 
-val grpcVersion = "1.65.1"
-val camundaVersion = "8.9.0"
+val grpcVersion = "1.73.0"
+val camundaVersion = "8.8.0"
 val protobufVersion = "3.25.5"
 
 dependencies {
@@ -21,6 +21,7 @@ dependencies {
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("com.google.protobuf:protobuf-java:$protobufVersion")
     implementation("io.camunda:camunda-client-java:$camundaVersion")
+    runtimeOnly("org.slf4j:slf4j-simple:2.0.16")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))

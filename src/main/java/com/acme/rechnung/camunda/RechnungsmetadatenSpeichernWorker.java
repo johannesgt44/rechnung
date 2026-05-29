@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Job Worker fuer den Camunda Service Task "Rechnungsmetadaten speichern".
@@ -47,17 +48,21 @@ public final class RechnungsmetadatenSpeichernWorker {
                 RechnungMetadataServiceGrpc.newBlockingStub(grpcChannel);
         RechnungsmetadatenWorker rechnungsmetadatenWorker = new RechnungsmetadatenWorker(rechnungGrpcClient);
 
-        try (
-                CamundaClient camundaClient = CamundaClient.newCloudClientBuilder()
-                        .withClusterId(camundaCredentials.getProperty("camunda.client.cloud.cluster-id"))
-                        .withClientId(camundaCredentials.getProperty("camunda.client.auth.client-id"))
-                        .withClientSecret(camundaCredentials.getProperty("camunda.client.auth.client-secret"))
-                        .withRegion(camundaCredentials.getProperty("camunda.client.cloud.region"))
-                        .build();
-                JobWorker worker = rechnungsmetadatenWorker.open(camundaClient)
-        ) {
-            System.out.printf("Job Worker gestartet und wartet auf Jobs vom Typ: %s%n", JOB_TYPE);
-            new CountDownLatch(1).await();
+        try (CamundaClient camundaClient = CamundaClient.newCloudClientBuilder()
+                .withClusterId(camundaCredentials.getProperty("camunda.client.cloud.cluster-id"))
+                .withClientId(camundaCredentials.getProperty("camunda.client.auth.client-id"))
+                .withClientSecret(camundaCredentials.getProperty("camunda.client.auth.client-secret"))
+                .withRegion(camundaCredentials.getProperty("camunda.client.cloud.region"))
+                .preferRestOverGrpc(false)
+                .build()) {
+            System.out.println("Teste Camunda Cloud Verbindung...");
+            camundaClient.newTopologyRequest().send().join();
+            System.out.println("Camunda Cloud Verbindung OK.");
+
+            try (JobWorker worker = rechnungsmetadatenWorker.open(camundaClient)) {
+                System.out.printf("Job Worker gestartet und wartet auf Jobs vom Typ: %s%n", JOB_TYPE);
+                new CountDownLatch(1).await();
+            }
         } finally {
             grpcChannel.shutdownNow();
         }
@@ -84,7 +89,9 @@ public final class RechnungsmetadatenSpeichernWorker {
             Rechnungsdaten rechnung = rechnungsdatenAus(jobInformation);
 
             try {
-                CreateRechnungMetadataResponse response = rechnungGrpcClient.createRechnungMetadata(
+                CreateRechnungMetadataResponse response = rechnungGrpcClient
+                        .withDeadlineAfter(10, TimeUnit.SECONDS)
+                        .createRechnungMetadata(
                         CreateRechnungMetadataRequest.newBuilder()
                                 .setMetadata(rechnung)
                                 .build()

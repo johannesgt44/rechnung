@@ -49,6 +49,7 @@ final class RechnungMetadataGrpcService extends RechnungMetadataServiceGrpc.Rech
             * Fehlerfallabdeckung.
             */
             Rechnungsdaten gespeicherteMetadaten = rechnungWriteService.create(request.getMetadata());
+            System.out.printf("Rechnung gespeichert:%n%s%n", gespeicherteMetadaten);
             /* Erstellen der Antwort, zusammen mit den Metadaten, anschließend Antwort dem Client
             * zuschicken und Antwort als "fertig" deklarieren (durch onCompleted()).*/
             CreateRechnungMetadataResponse response = CreateRechnungMetadataResponse.newBuilder()

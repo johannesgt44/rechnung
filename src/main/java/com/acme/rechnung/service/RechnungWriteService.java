@@ -3,6 +3,8 @@ package com.acme.rechnung.service;
 
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;
 import com.acme.rechnung.repository.RechnungRepository;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 /** Geschäftslogik für schreibende Zugriffe auf Rechnungen bzw. Repository. */
 
@@ -34,36 +36,68 @@ public final class RechnungWriteService {
         if (metadata.getLieferantenName().isBlank() || metadata.getRechnungsNummer().isBlank()) {
             throw new IllegalArgumentException("lieferanten_name und rechnungs_nummer sind erforderlich");
         }
+        if (!metadata.getRechnungsNummer().matches("\\d+")) {
+            throw new IllegalArgumentException("rechnungs_nummer darf nur Ziffern enthalten");
+        }
         if (metadata.getGesamtbetragBrutto().isBlank()) {
             throw new IllegalArgumentException("gesamtbetrag_brutto ist erforderlich");
         }
-        validiereZahl(metadata.getGesamtbetragBrutto(), "gesamtbetrag_brutto");
+        double gesamtbetragBrutto = validiereZahl(metadata.getGesamtbetragBrutto(), "gesamtbetrag_brutto");
+        if (gesamtbetragBrutto <= 0) {
+            throw new IllegalArgumentException("gesamtbetrag_brutto muss groesser als 0 sein");
+        }
         if (metadata.getWaehrung().isBlank()) {
             throw new IllegalArgumentException("waehrung ist erforderlich");
         }
+        validiereRechnungsDatum(metadata.getRechnungsDatum());
         if (metadata.getZahlungsziel().isBlank()) {
             throw new IllegalArgumentException("zahlungsziel ist erforderlich");
         }
         if (metadata.getRechnungspostenCount() == 0) {
             throw new IllegalArgumentException("mindestens ein rechnungsposten ist erforderlich");
         }
-        metadata.getRechnungspostenList().forEach(rechnungsposten -> {
+        double postenSummeBrutto = 0;
+        for (var rechnungsposten : metadata.getRechnungspostenList()) {
             String einheit = rechnungsposten.getEinheit();
             if (!einheit.equals("Stk.") && !einheit.equals("Std.") && !einheit.equals("Pauschal")) {
                 throw new IllegalArgumentException("einheit muss Stk., Std. oder Pauschal sein");
             }
-            validiereZahl(rechnungsposten.getMenge(), "menge");
-            validiereZahl(rechnungsposten.getEinzelpreisBrutto(), "einzelpreis_brutto");
+            double menge = validiereZahl(rechnungsposten.getMenge(), "menge");
+            if (menge <= 0) {
+                throw new IllegalArgumentException("menge muss groesser als 0 sein");
+            }
+            double einzelpreisBrutto = validiereZahl(rechnungsposten.getEinzelpreisBrutto(), "einzelpreis_brutto");
+            if (einzelpreisBrutto < 0) {
+                throw new IllegalArgumentException("einzelpreis_brutto muss groesser oder gleich 0 sein");
+            }
             validiereZahl(rechnungsposten.getSteuerProzent(), "steuer_prozent");
-        });
+            postenSummeBrutto += menge * einzelpreisBrutto;
+        }
+        if (Math.abs(postenSummeBrutto - gesamtbetragBrutto) > 0.01) {
+            throw new IllegalArgumentException("summe der rechnungsposten muss zum gesamtbetrag_brutto passen");
+        }
     }
 
-    private static void validiereZahl(String value, String feldname) {
+    private static void validiereRechnungsDatum(String rechnungsDatum) {
+        if (rechnungsDatum.isBlank()) {
+            return;
+        }
+        try {
+            LocalDate datum = LocalDate.parse(rechnungsDatum);
+            if (datum.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("rechnungs_datum darf nicht in der Zukunft liegen");
+            }
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("rechnungs_datum muss im Format JJJJ-MM-TT sein");
+        }
+    }
+
+    private static double validiereZahl(String value, String feldname) {
         if (value.isBlank()) {
             throw new IllegalArgumentException(feldname + " ist erforderlich");
         }
         try {
-            Double.parseDouble(value.replace(",", "."));
+            return Double.parseDouble(value.replace(",", "."));
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException(feldname + " muss eine Zahl sein");
         }
