@@ -8,49 +8,49 @@ import java.time.format.DateTimeParseException;
 public final class RechnungValidator {
     public void validate(Rechnungsdaten metadata) {
         if (metadata.getLieferantenName().isBlank() || metadata.getRechnungsNummer().isBlank()) {
-            throw new IllegalArgumentException("lieferanten_name und rechnungs_nummer sind erforderlich");
+            throw new IllegalArgumentException("Lieferantenname und Rechnungsnummer sind erforderlich.");
         }
         if (!metadata.getRechnungsNummer().matches("\\d+")) {
-            throw new IllegalArgumentException("rechnungs_nummer darf nur Ziffern enthalten");
+            throw new IllegalArgumentException("Die Rechnungsnummer darf nur Ziffern enthalten.");
         }
         if (metadata.getGesamtbetragBrutto().isBlank()) {
-            throw new IllegalArgumentException("gesamtbetrag_brutto ist erforderlich");
+            throw new IllegalArgumentException("Der Gesamtbetrag brutto ist erforderlich.");
         }
-        double gesamtbetragBrutto = validiereZahl(metadata.getGesamtbetragBrutto(), "gesamtbetrag_brutto");
+        double gesamtbetragBrutto = validiereZahl(metadata.getGesamtbetragBrutto(), "Der Gesamtbetrag brutto");
         if (gesamtbetragBrutto <= 0) {
-            throw new IllegalArgumentException("gesamtbetrag_brutto muss groesser als 0 sein");
+            throw new IllegalArgumentException("Der Gesamtbetrag brutto muss groesser als 0 sein.");
         }
         if (metadata.getWaehrung().isBlank()) {
-            throw new IllegalArgumentException("waehrung ist erforderlich");
+            throw new IllegalArgumentException("Die Waehrung ist erforderlich.");
         }
         validiereRechnungsDatum(metadata.getRechnungsDatum());
         if (metadata.getZahlungsziel().isBlank()) {
-            throw new IllegalArgumentException("zahlungsziel ist erforderlich");
+            throw new IllegalArgumentException("Das Zahlungsziel ist erforderlich.");
         }
         if (metadata.getRechnungspostenCount() == 0) {
-            throw new IllegalArgumentException("mindestens ein rechnungsposten ist erforderlich");
+            throw new IllegalArgumentException("Mindestens ein Rechnungsposten ist erforderlich.");
         }
 
         double postenSummeBrutto = 0;
         for (var rechnungsposten : metadata.getRechnungspostenList()) {
             String einheit = rechnungsposten.getEinheit();
             if (!einheit.equals("Stk.") && !einheit.equals("Std.") && !einheit.equals("Pauschal")) {
-                throw new IllegalArgumentException("einheit muss Stk., Std. oder Pauschal sein");
+                throw new IllegalArgumentException("Die Einheit muss Stk., Std. oder Pauschal sein.");
             }
-            double menge = validiereZahl(rechnungsposten.getMenge(), "menge");
+            double menge = validiereZahl(rechnungsposten.getMenge(), "Die Menge");
             if (menge <= 0) {
-                throw new IllegalArgumentException("menge muss groesser als 0 sein");
+                throw new IllegalArgumentException("Die Menge muss groesser als 0 sein.");
             }
-            double einzelpreisBrutto = validiereZahl(rechnungsposten.getEinzelpreisBrutto(), "einzelpreis_brutto");
+            double einzelpreisBrutto = validiereZahl(rechnungsposten.getEinzelpreisBrutto(), "Der Einzelpreis brutto");
             if (einzelpreisBrutto < 0) {
-                throw new IllegalArgumentException("einzelpreis_brutto muss groesser oder gleich 0 sein");
+                throw new IllegalArgumentException("Der Einzelpreis brutto muss groesser oder gleich 0 sein.");
             }
-            validiereZahl(rechnungsposten.getSteuerProzent(), "steuer_prozent");
+            validiereZahl(rechnungsposten.getSteuerProzent(), "Der Steuersatz");
             postenSummeBrutto += menge * einzelpreisBrutto;
         }
 
         if (Math.abs(postenSummeBrutto - gesamtbetragBrutto) > 0.01) {
-            throw new IllegalArgumentException("summe der rechnungsposten muss zum gesamtbetrag_brutto passen");
+            throw new IllegalArgumentException("Die Summe der Rechnungsposten muss zum Gesamtbetrag brutto passen.");
         }
     }
 
@@ -61,21 +61,21 @@ public final class RechnungValidator {
         try {
             LocalDate datum = LocalDate.parse(rechnungsDatum);
             if (datum.isAfter(LocalDate.now())) {
-                throw new IllegalArgumentException("rechnungs_datum darf nicht in der Zukunft liegen");
+                throw new IllegalArgumentException("Das Rechnungsdatum darf nicht in der Zukunft liegen.");
             }
         } catch (DateTimeParseException exception) {
-            throw new IllegalArgumentException("rechnungs_datum muss im Format JJJJ-MM-TT sein");
+            throw new IllegalArgumentException("Das Rechnungsdatum muss im Format JJJJ-MM-TT sein.");
         }
     }
 
     private static double validiereZahl(String value, String feldname) {
         if (value.isBlank()) {
-            throw new IllegalArgumentException(feldname + " ist erforderlich");
+            throw new IllegalArgumentException(feldname + " ist erforderlich.");
         }
         try {
             return Double.parseDouble(value.replace(",", "."));
         } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException(feldname + " muss eine Zahl sein");
+            throw new IllegalArgumentException(feldname + " muss eine Zahl sein.");
         }
     }
 }

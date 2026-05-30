@@ -51,7 +51,8 @@ abstract class BaseCamundaWorker {
                 .errorMessage(message)
                 .variables(Map.of(
                         "bpmnErrorCode", errorCode,
-                        "validierungsFehler", message
+                        "validierungsFehler", message,
+                        "validierungsfehler", message
                 ))
                 .send()
                 .join();
