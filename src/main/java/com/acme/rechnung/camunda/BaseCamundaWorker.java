@@ -45,9 +45,14 @@ abstract class BaseCamundaWorker {
             String errorCode,
             String errorMessage
     ) {
+        String message = errorMessage == null ? "" : errorMessage;
         jobClient.newThrowErrorCommand(jobInformation.jobKey())
                 .errorCode(errorCode)
-                .errorMessage(errorMessage == null ? "" : errorMessage)
+                .errorMessage(message)
+                .variables(Map.of(
+                        "bpmnErrorCode", errorCode,
+                        "validierungsFehler", message
+                ))
                 .send()
                 .join();
     }
