@@ -70,6 +70,7 @@ public final class RechnungsmetadatenSpeichernWorker {
 
     private static final class RechnungsmetadatenWorker extends BaseCamundaWorker {
         private final RechnungMetadataServiceGrpc.RechnungMetadataServiceBlockingStub rechnungGrpcClient;
+        private final CamundaErrorHandler errorHandler = new CamundaErrorHandler();
 
         private RechnungsmetadatenWorker(
                 RechnungMetadataServiceGrpc.RechnungMetadataServiceBlockingStub rechnungGrpcClient
@@ -106,7 +107,7 @@ public final class RechnungsmetadatenSpeichernWorker {
 
                 System.out.printf("Rechnungsmetadaten gespeichert: %s%n", gespeicherteRechnung.getRechnungsNummer());
             } catch (StatusRuntimeException exception) {
-                fail(jobClient, jobInformation, exception.getStatus().getDescription());
+                errorHandler.handleGrpcException(this, jobClient, jobInformation, exception);
             }
         }
     }

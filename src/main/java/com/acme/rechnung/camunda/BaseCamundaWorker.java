@@ -38,4 +38,17 @@ abstract class BaseCamundaWorker {
                 .send()
                 .join();
     }
+
+    final void throwBpmnError(
+            JobClient jobClient,
+            JobInformation jobInformation,
+            String errorCode,
+            String errorMessage
+    ) {
+        jobClient.newThrowErrorCommand(jobInformation.jobKey())
+                .errorCode(errorCode)
+                .errorMessage(errorMessage == null ? "" : errorMessage)
+                .send()
+                .join();
+    }
 }
