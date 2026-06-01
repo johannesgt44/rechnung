@@ -1,17 +1,17 @@
 # Eingangsrechnungsverarbeitung mit Camunda und gRPC
 
-Dieses Projekt ist Teil des DvG-Projekts zur Digitalisierung eines Eingangsrechnungsprozesses. Ziel ist nicht mehr, dass ein lokaler Client den kompletten Ablauf steuert, sondern dass **Camunda 8 Cloud den Prozess orchestriert**. Die einzelnen technischen Komponenten werden ueber Service Tasks und Job Worker angebunden.
+Dieses Projekt ist Teil des DvG-Projekts zur Digitalisierung eines Eingangsrechnungsprozesses. Ziel ist nicht mehr, dass ein lokaler Client den kompletten Ablauf steuert, sondern dass **Camunda 8 Cloud den Prozess orchestriert**. Die einzelnen technischen Komponenten werden über Service Tasks und Job Worker angebunden.
 
-Dieses Repository `rechnung` enthaelt den Rechnungsmetadaten-Service und den Camunda Worker fuer den Service Task `Rechnungsmetadaten speichern`. Nach erfolgreicher Rechnungsspeicherung kann ein separater Zahlungsservice im Projekt `../Zahlungssystem` angebunden werden; dieser wird in einer eigenen README dokumentiert.
+Dieses Repository `rechnung` enthält den Rechnungsmetadaten-Service und den Camunda Worker für den Service Task `Rechnungsmetadaten speichern`. Nach erfolgreicher Rechnungsspeicherung kann ein separater Zahlungsservice im Projekt `../Zahlungssystem` angebunden werden; dieser wird in einer eigenen README dokumentiert.
 
 ## Architekturidee
 
-Camunda ist der fuehrende Prozess-Orchestrator. Das bedeutet:
+Camunda ist der führende Prozess-Orchestrator. Das bedeutet:
 
-- Camunda entscheidet, welcher Prozessschritt als naechstes ausgefuehrt wird.
+- Camunda entscheidet, welcher Prozessschritt als nächstes ausgeführt wird.
 - Jeder Service Task hat einen eigenen `Job type`.
-- Ein passender Worker hoert auf diesen Job Type.
-- Der Worker fuehrt genau eine technische Aufgabe aus und meldet das Ergebnis an Camunda zurueck.
+- Ein passender Worker hört auf diesen Job Type.
+- Der Worker führt genau eine technische Aufgabe aus und meldet das Ergebnis an Camunda zurück.
 
 ## Komponenten im Rechnungsprojekt
 
@@ -37,7 +37,7 @@ src/main/java/com/acme/rechnung
 
 ### gRPC-Server
 
-Der Server wird ueber `RechnungMetadataServer` gestartet und lauscht standardmaessig auf Port `50051`.
+Der Server wird über `RechnungMetadataServer` gestartet und lauscht standardmäßig auf Port `50051`.
 
 ```powershell
 .\gradlew.bat run
@@ -65,11 +65,11 @@ Vorteile:
 - Die Schnittstelle ist klar typisiert.
 - Aus der `.proto`-Datei werden passende Java-Klassen generiert.
 - Worker und Service haben denselben Datenvertrag.
-- Camunda orchestriert einen externen Service, statt direkt Repository-Code auszufuehren.
+- Camunda orchestriert einen externen Service, statt direkt Repository-Code auszuführen.
 
 ## Camunda Worker
 
-Der Worker fuer Rechnungsmetadaten wird ueber diesen Task gestartet:
+Der Worker für Rechnungsmetadaten wird über diesen Task gestartet:
 
 ```powershell
 .\gradlew.bat runRechnungsmetadatenWorker
@@ -94,11 +94,11 @@ Die Grundidee daraus:
 - `BaseCamundaWorker` kapselt die gemeinsamen Camunda-Funktionen.
 - Jeder konkrete Worker implementiert `getType()` und `executeWorker(...)`.
 - `JobInformation` kapselt den Zugriff auf Prozessvariablen.
-- Jobs werden ueber `complete(...)`, `fail(...)` oder `throwBpmnError(...)` beendet.
+- Jobs werden über `complete(...)`, `fail(...)` oder `throwBpmnError(...)` beendet.
 
-## Prozessvariablen fuer Camunda
+## Prozessvariablen für Camunda
 
-Diese Variablen sollte Camunda an den Service Task uebergeben:
+Diese Variablen sollte Camunda an den Service Task übergeben:
 
 ```json
 {
@@ -123,7 +123,7 @@ Diese Variablen sollte Camunda an den Service Task uebergeben:
 }
 ```
 
-Alternativ kann Camunda fuer das Zahlungsziel auch eine Zahl liefern:
+Alternativ kann Camunda für das Zahlungsziel auch eine Zahl liefern:
 
 ```json
 {
@@ -139,7 +139,7 @@ Der Worker macht daraus:
 
 ### Rechnungsposten in Camunda Forms
 
-Rechnungsposten sind eine Liste. In Camunda Forms sollte dafuer eine **Dynamic List** verwendet werden.
+Rechnungsposten sind eine Liste. In Camunda Forms sollte dafür eine **Dynamic List** verwendet werden.
 
 Empfohlener Path:
 
@@ -158,7 +158,7 @@ einzelpreisBrutto
 steuerProzent
 ```
 
-Zulaessige Werte fuer `einheit`:
+Zulässige Werte für `einheit`:
 
 ```text
 Stk.
@@ -166,7 +166,7 @@ Std.
 Pauschal
 ```
 
-Der Gesamtbetrag brutto und die einzelnen Bruttowerte werden als Strings uebertragen, damit Werte wie `119.00` sauber erhalten bleiben.
+Der Gesamtbetrag brutto und die einzelnen Bruttowerte werden als Strings übertragen, damit Werte wie `119.00` sauber erhalten bleiben.
 
 ## Validierung
 
@@ -179,9 +179,9 @@ RechnungValidator
 Warum?
 
 - Die Validierung ist fachliche Logik.
-- Der Schreibservice soll nicht mit zu vielen Details ueberladen werden.
-- Fehlermeldungen koennen zentral gepflegt werden.
-- Die Meldungen werden spaeter in Camunda Forms angezeigt.
+- Der Schreibservice soll nicht mit zu vielen Details überladen werden.
+- Fehlermeldungen können zentral gepflegt werden.
+- Die Meldungen werden später in Camunda Forms angezeigt.
 
 Aktuelle Validierungsregeln:
 
@@ -189,34 +189,34 @@ Aktuelle Validierungsregeln:
 - Rechnungsnummer ist erforderlich.
 - Rechnungsnummer darf nur Ziffern enthalten.
 - Gesamtbetrag brutto ist erforderlich.
-- Gesamtbetrag brutto muss groesser als 0 sein.
-- Waehrung ist erforderlich.
+- Gesamtbetrag brutto muss größer als 0 sein.
+- Währung ist erforderlich.
 - Rechnungsdatum darf nicht in der Zukunft liegen.
 - Rechnungsdatum wird im Format `JJJJ-MM-TT` erwartet.
 - Zahlungsziel ist erforderlich.
 - Mindestens ein Rechnungsposten ist erforderlich.
 - Einheit muss `Stk.`, `Std.` oder `Pauschal` sein.
-- Menge je Rechnungsposten muss groesser als 0 sein.
-- Einzelpreis brutto je Rechnungsposten muss groesser oder gleich 0 sein.
+- Menge je Rechnungsposten muss größer als 0 sein.
+- Einzelpreis brutto je Rechnungsposten muss größer oder gleich 0 sein.
 - Steuersatz muss eine Zahl sein.
-- Summe der Rechnungsposten muss ungefaehr zum Gesamtbetrag brutto passen.
+- Summe der Rechnungsposten muss ungefähr zum Gesamtbetrag brutto passen.
 
-## Rechnungsnummer als Schluessel
+## Rechnungsnummer als Schlüssel
 
-Frueher gab es gedanklich sowohl eine `rechnungsId` als auch eine `rechnungsNummer`. Das wurde vereinfacht.
+Früher gab es gedanklich sowohl eine `rechnungsId` als auch eine `rechnungsNummer`. Das wurde vereinfacht.
 
 Aktuell gilt:
 
 ```text
-Die Rechnungsnummer ist der fachliche Schluessel.
+Die Rechnungsnummer ist der fachliche Schlüssel.
 ```
 
-Das Repository speichert Rechnungen anhand der `rechnungsNummer`. Beim Speichern wird geprueft, ob diese Nummer bereits existiert. Wenn ja, entsteht ein fachlicher Fehler.
+Das Repository speichert Rechnungen anhand der `rechnungsNummer`. Beim Speichern wird geprüft, ob diese Nummer bereits existiert. Wenn ja, entsteht ein fachlicher Fehler.
 
 Warum so?
 
 - Die ERP-Maske arbeitet sichtbar mit Rechnungsnummern.
-- Dublettenpruefung wird einfacher erklaerbar.
+- Dublettenprüfung wird einfacher erklärbar.
 
 ## Fachliche und technische Fehler
 
@@ -232,7 +232,7 @@ Der Prozess oder die eingegebenen Daten sind fachlich falsch.
 
 Beispiele:
 
-- Rechnung ist ungueltig.
+- Rechnung ist ungültig.
 - Rechnungsnummer ist schon vorhanden.
 - Rechnungsposten passen nicht zum Gesamtbetrag.
 
@@ -245,7 +245,7 @@ RECHNUNG_BEREITS_ERFASST
 
 Camunda soll solche Fehler im BPMN-Modell fangen und fachlich weiterverarbeiten, z.B.:
 
-- Zurueck zur manuellen Korrektur
+- Zurück zur manuellen Korrektur
 - kontrollierte Fortsetzung bei bereits erfasster Rechnung
 
 ### Technischer Fehler
@@ -253,7 +253,7 @@ Camunda soll solche Fehler im BPMN-Modell fangen und fachlich weiterverarbeiten,
 Ein technischer Fehler bedeutet:
 
 ```text
-Die Daten koennen in Ordnung sein, aber ein System ist nicht erreichbar oder kaputt.
+Die Daten können in Ordnung sein, aber ein System ist nicht erreichbar oder kaputt.
 ```
 
 Beispiele:
@@ -267,12 +267,12 @@ Diese Fehler werden **nicht** als BPMN Error modelliert. Der Worker ruft `fail(.
 Warum?
 
 - Technische Fehler sind Betriebsprobleme.
-- Ein Prozesspfad wie "Rechnung ungueltig" waere fachlich falsch.
-- In echten Unternehmen werden solche Faelle ueber Retries, Monitoring und Incidents behandelt.
+- Ein Prozesspfad wie "Rechnung ungültig" wäre fachlich falsch.
+- In echten Unternehmen werden solche Fälle über Retries, Monitoring und Incidents behandelt.
 
 ## Verhalten bei Fehlern in Camunda
 
-### Ungueltige Rechnung
+### Ungültige Rechnung
 
 Beispiel:
 
@@ -287,7 +287,7 @@ Ablauf:
 Validator wirft IllegalArgumentException
 gRPC-Service antwortet INVALID_ARGUMENT
 Worker macht throwBpmnError("RECHNUNG_UNGUELTIG")
-Camunda Boundary Error Event faengt den Fehler
+Camunda Boundary Error Event fängt den Fehler
 Prozess geht zur Korrektur
 ```
 
@@ -299,17 +299,17 @@ Ablauf:
 Repository erkennt vorhandene Rechnungsnummer
 gRPC-Service antwortet ALREADY_EXISTS
 Worker macht throwBpmnError("RECHNUNG_BEREITS_ERFASST")
-Camunda Boundary Error Event faengt den Fehler
+Camunda Boundary Error Event fängt den Fehler
 Prozess kann mit der vorhandenen Rechnungsnummer weiterlaufen
 ```
 
 ### Worker aus
 
-Wenn der Worker nicht laeuft:
+Wenn der Worker nicht läuft:
 
 ```text
 Camunda legt den Job bereit
-Retries bleiben unveraendert
+Retries bleiben unverändert
 Prozess wartet am Service Task
 ```
 
@@ -317,7 +317,7 @@ Das ist normal. Camunda kann den Job niemandem geben, also gibt es auch noch kei
 
 ### Worker an, Rechnungsservice aus
 
-Wenn der Worker laeuft, aber der gRPC-Service nicht:
+Wenn der Worker läuft, aber der gRPC-Service nicht:
 
 ```text
 Worker bekommt Job
@@ -329,7 +329,7 @@ Camunda reduziert Retries
 Nach 0 Retries entsteht ein Incident
 ```
 
-Das ist der Demo-Fall fuer technische Fehler.
+Das ist der Demo-Fall für technische Fehler.
 
 ### Nach 3 fehlgeschlagenen Retries
 
@@ -337,37 +337,37 @@ Nach den Retries entsteht in Camunda ein technischer Fehler am Service Task. Der
 
 ## Boundary Error Events im BPMN-Modell
 
-Am Service Task `Rechnungsmetadaten speichern` haengen zwei Boundary Error Events.
+Am Service Task `Rechnungsmetadaten speichern` hängen zwei Boundary Error Events.
 
-### Fehlercode fuer ungueltige Rechnung
+### Fehlercode für ungültige Rechnung
 
 ```text
 RECHNUNG_UNGUELTIG
 ```
 
-Moeglicher Pfad:
+Möglicher Pfad:
 
 ```text
 Rechnungsdaten korrigieren
 ```
 
-### Fehlercode fuer Dublette
+### Fehlercode für Dublette
 
 ```text
 RECHNUNG_BEREITS_ERFASST
 ```
 
-Moeglicher Pfad:
+Möglicher Pfad:
 
 ```text
 Prozess mit vorhandener Rechnungsnummer fortsetzen
 ```
 
-Technische Fehler bekommen kein Boundary Error Event. Sie laufen ueber Retries und Incidents.
+Technische Fehler bekommen kein Boundary Error Event. Sie laufen über Retries und Incidents.
 
 ## Fehlermeldung in Camunda Forms anzeigen
 
-Der Worker setzt beim BPMN Error zusaetzlich Prozessvariablen:
+Der Worker setzt beim BPMN Error zusätzlich Prozessvariablen:
 
 ```text
 bpmnErrorCode
@@ -431,7 +431,7 @@ Job Worker gestartet und wartet auf Jobs vom Typ: rechnung-metadaten-speichern
 Im Camunda Modeler/Tasklist:
 
 1. Rechnung manuell erfassen.
-2. Rechnungsposten ueber Dynamic List eintragen.
+2. Rechnungsposten über Dynamic List eintragen.
 3. Prozess bis `Rechnungsmetadaten speichern` laufen lassen.
 4. Danach kann der Prozess mit Compliance, Freigabe oder Zahlung fortgesetzt werden.
 
@@ -443,7 +443,7 @@ Die Datei:
 CamundaClientCredentials.properties
 ```
 
-muss im Projektordner liegen. Sie enthaelt:
+muss im Projektordner liegen. Sie enthält:
 
 ```properties
 camunda.client.cloud.cluster-id=...
@@ -452,7 +452,7 @@ camunda.client.auth.client-id=...
 camunda.client.auth.client-secret=...
 ```
 
-Diese Datei enthaelt Secrets und gehoert nicht ins Git-Repository.
+Diese Datei enthält Secrets und gehört nicht ins Git-Repository.
 
 ## Wichtige Gradle-Tasks
 
@@ -465,15 +465,15 @@ Im Rechnungsprojekt:
 .\gradlew.bat test
 ```
 
-## Begruendung wichtiger Entscheidungen
+## Begründung wichtiger Entscheidungen
 
 ### Warum Camunda Worker statt direkter HTTP-Connector?
 
-Im Modeler steht beim Service Task nur ein Job Type. Deshalb ist ein Worker passend: Camunda stellt Jobs bereit, der Worker fragt Jobs ab und fuehrt die technische Arbeit aus.
+Im Modeler steht beim Service Task nur ein Job Type. Deshalb ist ein Worker passend: Camunda stellt Jobs bereit, der Worker fragt Jobs ab und führt die technische Arbeit aus.
 
-### Warum kein zentraler Worker fuer alles?
+### Warum kein zentraler Worker für alles?
 
-Ein zentraler Worker wuerde wieder eine eigene Prozesssteuerung im Code bauen. Besser ist:
+Ein zentraler Worker würde wieder eine eigene Prozesssteuerung im Code bauen. Besser ist:
 
 ```text
 Ein Service Task = ein Job Type = ein Worker
@@ -486,7 +486,7 @@ Damit bleibt Camunda die Orchestrierungsinstanz.
 Fachliche Fehler sind Teil des Prozesses. Ein Mensch oder ein Prozesspfad kann darauf reagieren:
 
 - Korrektur
-- Dublettenpruefung
+- Dublettenprüfung
 - fachliche Ablehnung
 
 ### Warum technische Fehler als Retry/Incident?
@@ -503,16 +503,17 @@ fail()
 
 ### Warum Validierung getrennt?
 
-Der `RechnungWriteService` soll speichern und Dubletten pruefen. Die Detailregeln liegen in `RechnungValidator`. Dadurch ist der Code nachvollziehbarer und die Fehlermeldungen sind an einer Stelle gepflegt.
+Der `RechnungWriteService` soll speichern und Dubletten prüfen. Die Detailregeln liegen in `RechnungValidator`. Dadurch ist der Code nachvollziehbarer und die Fehlermeldungen sind an einer Stelle gepflegt.
 
-### Warum Rechnungsnummer als Schluessel?
+### Warum Rechnungsnummer als Schlüssel?
 
-Fuer den aktuellen Demo-Stand reicht die Rechnungsnummer als fachlicher Primaerschluessel. Eine separate technische ID wuerde den Prozess unnoetig verkomplizieren.
+Für den aktuellen Demo-Stand reicht die Rechnungsnummer als fachlicher Primärschlüssel. Eine separate technische ID würde den Prozess unnötig verkomplizieren.
 
 ### Warum Bruttowerte und Steuer, aber kein Netto speichern?
 
-In der ERP-Maske werden Bruttowerte und Steuersatz erfasst. Netto und Steuerbetrag koennen daraus berechnet werden. Deshalb werden nicht alle berechenbaren Werte gespeichert.
+In der ERP-Maske werden Bruttowerte und Steuersatz erfasst. Netto und Steuerbetrag können daraus berechnet werden. Deshalb werden nicht alle berechenbaren Werte gespeichert.
 
-## Kurzfassung fuer die Abgabe
+## Kurzfassung für die Abgabe
 
-Das Projekt zeigt eine orchestrierte Eingangsrechnungsverarbeitung mit Camunda 8 Cloud. Camunda steuert den Prozess ueber Service Tasks und Job Types. Der Rechnungsmetadaten-Worker ruft einen gRPC-Service auf, der Rechnungen validiert, Dubletten erkennt und in-memory speichert. Fachliche Fehler werden als BPMN Errors modelliert und koennen im Prozess ueber Boundary Error Events behandelt werden. Technische Fehler werden bewusst ueber Camunda Retries und Incidents behandelt. Nach erfolgreicher Rechnungsspeicherung kann der Prozess an weitere Schritte wie Compliance, Freigabe oder Zahlung uebergeben werden; diese Folgekomponenten werden separat dokumentiert.
+Das Projekt zeigt eine orchestrierte Eingangsrechnungsverarbeitung mit Camunda 8 Cloud. Camunda steuert den Prozess über Service Tasks und Job Types. Der Rechnungsmetadaten-Worker ruft einen gRPC-Service auf, der Rechnungen validiert, Dubletten erkennt und in-memory speichert. Fachliche Fehler werden als BPMN Errors modelliert und können im Prozess über Boundary Error Events behandelt werden. Technische Fehler werden bewusst über Camunda Retries und Incidents behandelt. Nach erfolgreicher Rechnungsspeicherung kann der Prozess an weitere Schritte wie Compliance, Freigabe oder Zahlung übergeben werden; diese Folgekomponenten werden separat dokumentiert.
+
