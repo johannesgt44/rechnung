@@ -1,3 +1,7 @@
+/* Selbstgecoded mit KI als Template, angepasst fuer Camunda-Orchestrierung
+ *
+ * https://github.com/camunda-community-hub/C7-C8-workers Template daraus.
+ * */
 package com.acme.rechnung.camunda;
 
 import io.camunda.client.api.response.ActivatedJob;

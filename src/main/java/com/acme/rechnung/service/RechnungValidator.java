@@ -1,3 +1,5 @@
+/* Selbstgecoded mit KI als Template, angepasst fuer Camunda-Orchestrierung
+ * */
 package com.acme.rechnung.service;
 
 import com.acme.rechnung.invoice.v1.Rechnungsdaten;
